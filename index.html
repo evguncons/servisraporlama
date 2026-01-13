@@ -25,7 +25,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="text-slate-800 antialiased">
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center transition-opacity duration-300">
@@ -36,19 +36,19 @@
     <!-- Navbar -->
     <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
+            <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-16 py-3 sm:py-0">
+                <div class="flex items-center self-start sm:self-center mb-2 sm:mb-0">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg mr-3 shadow-md shadow-blue-200">
                         <i class="fa-solid fa-chart-line text-lg"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg font-bold text-slate-900">Hedef AVM</h1>
-                        <p class="text-xs text-slate-500">Mağaza & Servis Raporlama</p>
+                        <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Hedef AVM</h1>
+                        <p class="text-[10px] sm:text-xs text-slate-500">Mağaza & Servis Raporlama</p>
                     </div>
                 </div>
-                <div class="flex items-center">
-                    <div class="text-xs text-slate-400 font-medium flex items-center">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
+                <div class="flex items-center self-end sm:self-center bg-slate-50 rounded-full px-3 py-1 border border-slate-100">
+                    <div class="text-[10px] sm:text-xs text-slate-500 font-medium flex items-center">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
                         Canlı İzleme (5sn)
                     </div>
                 </div>
@@ -57,41 +57,43 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8">
         
         <!-- ÜST BÖLÜM: Şube Bazlı İstatistikler (A Sütunu) -->
         <section>
-            <h2 class="text-lg font-semibold text-slate-700 mb-4 flex items-center">
+            <h2 class="text-base sm:text-lg font-semibold text-slate-700 mb-4 flex items-center">
                 <i class="fa-solid fa-store mr-2 text-blue-500"></i> Şube Memnuniyet Oranları
             </h2>
-            <div id="branchContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div id="branchContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <!-- Şube kartları buraya gelecek -->
             </div>
         </section>
 
         <!-- ORTA BÖLÜM: Kurulumcu Performansı (E Sütunu) ve Detaylar -->
-        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             
             <!-- Sol Taraf: Kurulumcu Listesi -->
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                    <h3 class="font-semibold text-slate-800">Kurulumcu Performans Tablosu</h3>
-                    <span class="text-xs text-slate-500 bg-white border px-2 py-1 rounded">İş Sayısı / Arananlar (I Sütunu) / Memnuniyet</span>
+            <div class="lg:col-span-2 bg-white sm:bg-white rounded-xl shadow-none sm:shadow-sm border-0 sm:border border-slate-100 overflow-hidden flex flex-col bg-transparent">
+                <div class="px-0 sm:px-6 py-4 sm:border-b border-slate-100 bg-transparent sm:bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2 sm:mb-0">
+                    <h3 class="font-semibold text-slate-800 text-sm sm:text-base pl-2 sm:pl-0">Kurulumcu Performans Tablosu</h3>
+                    <span class="text-[10px] sm:text-xs text-slate-500 bg-white border px-2 py-1 rounded shadow-sm hidden sm:inline-block">İş Sayısı / Arananlar / Memnuniyet</span>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="text-xs text-slate-500 uppercase bg-slate-50/50 border-b">
+                <div class="block w-full"> 
+                    <!-- sm:table sınıfı mobilde tablo özelliğini kaldırıp block yapar -->
+                    <table class="w-full text-xs sm:text-sm text-left border-collapse">
+                        <!-- Mobilde başlığı gizle -->
+                        <thead class="hidden sm:table-header-group text-[10px] sm:text-xs text-slate-500 uppercase bg-slate-50/50 border-b">
                             <tr>
-                                <th class="px-6 py-3">Kurulumcu</th>
-                                <th class="px-6 py-3 text-center bg-blue-50 text-blue-700">İş Sayısı</th>
-                                <th class="px-6 py-3 text-center bg-amber-50 text-amber-700 border-l border-r border-slate-200">Arananlar</th>
-                                <th class="px-6 py-3 text-center text-emerald-700">Evet (Memnun)</th>
-                                <th class="px-6 py-3 text-center text-rose-700">Hayır (Memnun Değil)</th>
-                                <th class="px-6 py-3 text-center">Başarı %</th>
-                                <th class="px-6 py-3 text-center">Durum</th>
+                                <th class="px-3 py-2 sm:px-6 sm:py-3 whitespace-nowrap">Kurulumcu</th>
+                                <th class="px-2 py-2 sm:px-6 sm:py-3 text-center bg-blue-50 text-blue-700 whitespace-nowrap">İş Sayısı</th>
+                                <th class="px-2 py-2 sm:px-6 sm:py-3 text-center bg-amber-50 text-amber-700 border-l border-r border-slate-200 whitespace-nowrap">Aranan</th>
+                                <th class="px-2 py-2 sm:px-6 sm:py-3 text-center text-emerald-700 whitespace-nowrap">Evet</th>
+                                <th class="px-2 py-2 sm:px-6 sm:py-3 text-center text-rose-700 whitespace-nowrap">Hayır</th>
+                                <th class="px-2 py-2 sm:px-6 sm:py-3 text-center whitespace-nowrap">Başarı</th>
+                                <th class="px-3 py-2 sm:px-6 sm:py-3 text-center whitespace-nowrap">Durum</th>
                             </tr>
                         </thead>
-                        <tbody id="installerTableBody" class="divide-y divide-slate-100">
+                        <tbody id="installerTableBody" class="block sm:table-row-group space-y-4 sm:space-y-0">
                             <!-- Satırlar buraya gelecek -->
                         </tbody>
                     </table>
@@ -101,20 +103,20 @@
             <!-- Sağ Taraf: Grafikler -->
             <div class="space-y-6">
                 <!-- Genel Pasta Grafik -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                    <h3 class="text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">Genel Dağılım</h3>
-                    <div class="relative h-48">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6">
+                    <h3 class="text-xs sm:text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">Genel Dağılım</h3>
+                    <div class="relative h-40 sm:h-48">
                          <canvas id="satisfactionChart"></canvas>
                     </div>
                     <div class="mt-4 text-center">
-                        <p class="text-xs text-slate-400">J Sütunu Bazlı Evet/Hayır Analizi</p>
+                        <p class="text-[10px] sm:text-xs text-slate-400">J Sütunu Bazlı Evet/Hayır Analizi</p>
                     </div>
                 </div>
 
                 <!-- Başarı Sıralaması -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                    <h3 class="text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">En İyi Şubeler</h3>
-                    <ul id="topBranchesList" class="space-y-3 mt-4">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6">
+                    <h3 class="text-xs sm:text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">En İyi Şubeler</h3>
+                    <ul id="topBranchesList" class="space-y-2 sm:space-y-3 mt-4">
                         <!-- Liste JS ile dolacak -->
                     </ul>
                 </div>
@@ -137,13 +139,11 @@
             if (!Array.isArray(rawData)) return { branches, installers, globalStats };
 
             rawData.forEach((row, index) => {
-                // Verileri güvenli şekilde string'e çevir
                 const branchName = row.branch ? String(row.branch).trim() : "";
                 const installerName = row.installer ? String(row.installer).trim() : "";
                 const callStatusVal = row.callStatus ? String(row.callStatus).trim() : ""; // I Sütunu
                 const statusVal = row.isSatisfied; // J Sütunu
                 
-                // Başlık Satırlarını Filtrele
                 const invalidValues = [
                     "ŞUBE ADI", "KURULUMCU ADI", "DURUM", "MEMNUNİYET", "SIRA", "TARİH", 
                     "BRANCH", "INSTALLER", "STATUS", "DATE", "ŞUBE", "KURULUMCU", "ARAMA DURUMU"
@@ -152,11 +152,8 @@
                     return; 
                 }
 
-                // Tamamen boş satırı atla
                 if (branchName === "" && installerName === "") return;
 
-                // --- İSTATİSTİK NESNELERİNİ BAŞLAT ---
-                // called: Arananlar Sayısı (I Sütunu Dolu)
                 if (branchName !== "" && !branches[branchName]) {
                     branches[branchName] = { totalAll: 0, called: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
                 }
@@ -164,17 +161,14 @@
                     installers[installerName] = { totalAll: 0, called: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
                 }
 
-                // --- 1. İŞ SAYISI HESABI ---
                 if (branchName !== "") branches[branchName].totalAll++;
                 if (installerName !== "") installers[installerName].totalAll++;
 
-                // --- 2. ARANANLAR (I Sütunu Dolu Olanlar) ---
                 if (callStatusVal !== "") {
                     if (branchName !== "") branches[branchName].called++;
                     if (installerName !== "") installers[installerName].called++;
                 }
 
-                // --- 3. J SÜTUNU (EVET/HAYIR) ANALİZİ ---
                 let isYes = false;
                 let isNo = false;
 
@@ -231,22 +225,22 @@
                         if(rate < 60) { color = "text-rose-600"; icon = "fa-face-frown"; barColor = "bg-rose-600"; }
 
                         const html = `
-                            <div class="bg-white rounded-xl p-6 border border-slate-100 card-hover transition-all relative overflow-hidden group">
+                            <div class="bg-white rounded-xl p-4 sm:p-6 border border-slate-100 card-hover transition-all relative overflow-hidden group">
                                 <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <i class="fa-solid fa-store text-6xl text-slate-800"></i>
+                                    <i class="fa-solid fa-store text-5xl sm:text-6xl text-slate-800"></i>
                                 </div>
-                                <p class="text-sm text-slate-500 font-medium uppercase tracking-wide mb-1">${name}</p>
+                                <p class="text-xs sm:text-sm text-slate-500 font-medium uppercase tracking-wide mb-1 truncate" title="${name}">${name}</p>
                                 <div class="flex items-baseline space-x-2">
-                                    <h2 class="text-3xl font-bold ${color}">%${rate}</h2>
-                                    <span class="text-sm text-slate-400">Memnuniyet</span>
+                                    <h2 class="text-2xl sm:text-3xl font-bold ${color}">%${rate}</h2>
+                                    <span class="text-xs sm:text-sm text-slate-400">Memnuniyet</span>
                                 </div>
                                 <div class="mt-4 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                                     <div class="${barColor} h-1.5 rounded-full" style="width: ${rate}%"></div>
                                 </div>
-                                <div class="mt-2 text-xs text-slate-400 flex justify-between font-medium">
-                                    <span class="text-slate-600">${displayTotal} İşlem</span>
-                                    <span class="text-amber-600" title="Arananlar">${stats.called} Aranan</span>
-                                    <div class="flex space-x-1">
+                                <div class="mt-2 text-[10px] sm:text-xs text-slate-400 flex justify-between font-medium items-center">
+                                    <span class="text-slate-600 whitespace-nowrap">${displayTotal} İşlem</span>
+                                    <span class="text-amber-600 whitespace-nowrap" title="Arananlar">${stats.called} Aranan</span>
+                                    <div class="flex space-x-1 whitespace-nowrap">
                                         <span class="text-emerald-600 font-bold">${stats.satisfied}</span>
                                         <span class="text-slate-300">/</span>
                                         <span class="text-rose-400 font-bold">${stats.unsatisfied}</span>
@@ -274,19 +268,48 @@
                         const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
                         const displayTotal = stats.totalAll;
 
-                        let badge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">Mükemmel</span>`;
-                        if(rate < 85) badge = `<span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">İyi</span>`;
-                        if(rate < 60) badge = `<span class="bg-rose-100 text-rose-700 px-2 py-1 rounded text-xs font-bold">Düşük</span>`;
+                        let badge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">Mükemmel</span>`;
+                        if(rate < 85) badge = `<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">İyi</span>`;
+                        if(rate < 60) badge = `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">Düşük</span>`;
 
+                        // MOBİL İÇİN KART GÖRÜNÜMÜ, MASAÜSTÜ İÇİN TABLO GÖRÜNÜMÜ
                         const row = `
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-6 py-4 font-medium text-slate-900">${name}</td>
-                                <td class="px-6 py-4 text-center bg-blue-50/50 text-blue-700 font-bold border-l border-slate-100">${displayTotal}</td>
-                                <td class="px-6 py-4 text-center bg-amber-50/50 text-amber-700 font-bold border-r border-slate-100">${stats.called}</td>
-                                <td class="px-6 py-4 text-center text-emerald-600 font-bold text-lg">${stats.satisfied}</td>
-                                <td class="px-6 py-4 text-center text-rose-600 font-bold text-lg">${stats.unsatisfied}</td>
-                                <td class="px-6 py-4 text-center font-bold text-slate-800">%${rate}</td>
-                                <td class="px-6 py-4 text-center">${badge}</td>
+                            <tr class="block sm:table-row bg-white sm:bg-transparent rounded-xl sm:rounded-none mb-4 sm:mb-0 shadow-sm sm:shadow-none border border-slate-100 sm:border-0 p-1 sm:p-0 hover:bg-slate-50 transition-colors">
+                                
+                                <td class="flex justify-between items-center sm:table-cell px-4 py-3 sm:px-6 sm:py-3 font-medium text-slate-900 text-sm sm:text-sm border-b sm:border-b-0 border-slate-50 sm:whitespace-nowrap sm:max-w-[120px] sm:truncate" title="${name}">
+                                    <span class="sm:hidden font-bold text-slate-500 text-xs uppercase">Kurulumcu:</span>
+                                    <span>${name}</span>
+                                </td>
+                                
+                                <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center sm:bg-blue-50/50 text-blue-700 font-bold sm:border-l border-b sm:border-b-0 border-slate-50 text-sm">
+                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">İş Sayısı:</span>
+                                    <span>${displayTotal}</span>
+                                </td>
+                                
+                                <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center sm:bg-amber-50/50 text-amber-700 font-bold sm:border-r border-b sm:border-b-0 border-slate-50 text-sm">
+                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">Aranan:</span>
+                                    <span>${stats.called}</span>
+                                </td>
+                                
+                                <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center text-emerald-600 font-bold border-b sm:border-b-0 border-slate-50 text-sm sm:text-lg">
+                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">Memnun (Evet):</span>
+                                    <span>${stats.satisfied}</span>
+                                </td>
+                                
+                                <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center text-rose-600 font-bold border-b sm:border-b-0 border-slate-50 text-sm sm:text-lg">
+                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">Memnun Değil:</span>
+                                    <span>${stats.unsatisfied}</span>
+                                </td>
+                                
+                                <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center font-bold text-slate-800 border-b sm:border-b-0 border-slate-50 text-sm">
+                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">Başarı %:</span>
+                                    <span>%${rate}</span>
+                                </td>
+                                
+                                <td class="flex justify-between items-center sm:table-cell px-4 py-3 sm:px-6 sm:py-3 text-center sm:text-center">
+                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">Durum:</span>
+                                    <div class="flex justify-end w-full sm:w-auto">${badge}</div>
+                                </td>
                             </tr>
                         `;
                         tableBody.innerHTML += row;
@@ -312,10 +335,10 @@
                             topBranchesList.innerHTML += `
                                 <li class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-100">
                                     <div class="flex items-center">
-                                        <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold mr-3">${index+1}</span>
-                                        <span class="text-sm font-medium text-slate-700">${name}</span>
+                                        <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] sm:text-xs font-bold mr-2 sm:mr-3">${index+1}</span>
+                                        <span class="text-xs sm:text-sm font-medium text-slate-700 truncate max-w-[150px] sm:max-w-none" title="${name}">${name}</span>
                                     </div>
-                                    <span class="text-sm font-bold text-emerald-600">%${rate}</span>
+                                    <span class="text-xs sm:text-sm font-bold text-emerald-600">%${rate}</span>
                                 </li>
                             `;
                         });
@@ -358,7 +381,7 @@
                         maintainAspectRatio: false,
                         cutout: '70%',
                         plugins: {
-                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }
+                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } }
                         }
                     }
                 });
