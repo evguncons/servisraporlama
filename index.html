@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hedef AVM - Servis & Kurulum Raporlama</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .transition-all { transition: all 0.3s ease; }
+        
+        /* Loading Animasyonu */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center transition-opacity duration-300">
+        <div class="loader mb-4"></div>
+        <h2 class="text-slate-600 font-medium animate-pulse">Veriler Analiz Ediliyor...</h2>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
+                        <i class="fa-solid fa-chart-line text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-slate-900">Hedef AVM</h1>
+                        <p class="text-xs text-slate-500">Mağaza & Servis Raporlama</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="text-xs text-slate-400 font-medium flex items-center">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
+                        Canlı İzleme (5sn)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- ÜST BÖLÜM: Şube Bazlı İstatistikler (A Sütunu) -->
+        <section>
+            <h2 class="text-lg font-semibold text-slate-700 mb-4 flex items-center">
+                <i class="fa-solid fa-store mr-2 text-blue-500"></i> Şube Memnuniyet Oranları
+            </h2>
+            <div id="branchContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Şube kartları buraya gelecek -->
+            </div>
+        </section>
+
+        <!-- ORTA BÖLÜM: Kurulumcu Performansı (E Sütunu) ve Detaylar -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Sol Taraf: Kurulumcu Listesi -->
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-800">Kurulumcu Performans Tablosu</h3>
+                    <span class="text-xs text-slate-500 bg-white border px-2 py-1 rounded">İş Sayısı (Başlık Hariç) / Memnuniyet</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-slate-500 uppercase bg-slate-50/50 border-b">
+                            <tr>
+                                <th class="px-6 py-3">Kurulumcu</th>
+                                <th class="px-6 py-3 text-center bg-blue-50 text-blue-700">İş Sayısı</th>
+                                <th class="px-6 py-3 text-center text-emerald-700">Evet (Memnun)</th>
+                                <th class="px-6 py-3 text-center text-rose-700">Hayır (Memnun Değil)</th>
+                                <th class="px-6 py-3 text-center">Başarı %</th>
+                                <th class="px-6 py-3 text-center">Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody id="installerTableBody" class="divide-y divide-slate-100">
+                            <!-- Satırlar buraya gelecek -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sağ Taraf: Grafikler -->
+            <div class="space-y-6">
+                <!-- Genel Pasta Grafik -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                    <h3 class="text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">Genel Dağılım</h3>
+                    <div class="relative h-48">
+                         <canvas id="satisfactionChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-xs text-slate-400">J Sütunu Bazlı Evet/Hayır Analizi</p>
+                    </div>
+                </div>
+
+                <!-- Başarı Sıralaması -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                    <h3 class="text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">En İyi Şubeler</h3>
+                    <ul id="topBranchesList" class="space-y-3 mt-4">
+                        <!-- Liste JS ile dolacak -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- Yapılandırma ---
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyXoTaYw05y7cffafpdYMfF4wiJD1ZRFeSPJFjDIe4F9r3FEke6hhCo-uCA6V3jbeZm9A/exec";
+        const REFRESH_INTERVAL = 5000; // 5 Saniye
+
+        // --- 1. Veri İşleme Mantığı ---
+        function processData(rawData) {
+            const branches = {};
+            const installers = {};
+            let globalStats = { totalFeedback: 0, satisfied: 0 };
+
+            if (!Array.isArray(rawData)) return { branches, installers, globalStats };
+
+            rawData.forEach((row, index) => {
+                // Verileri güvenli şekilde string'e çevir
+                const branchName = row.branch ? String(row.branch).trim() : "";
+                const installerName = row.installer ? String(row.installer).trim() : "";
+                
+                // J Sütunu Değeri (Memnuniyet)
+                let statusVal = row.isSatisfied;
+                
+                // Başlık Satırlarını Filtrele
+                const invalidValues = [
+                    "ŞUBE ADI", "KURULUMCU ADI", "DURUM", "MEMNUNİYET", "SIRA", "TARİH", 
+                    "BRANCH", "INSTALLER", "STATUS", "DATE", "ŞUBE", "KURULUMCU"
+                ];
+                if (invalidValues.includes(branchName.toUpperCase()) || invalidValues.includes(installerName.toUpperCase())) {
+                    return; 
+                }
+
+                // Tamamen boş satırı atla
+                if (branchName === "" && installerName === "") return;
+
+                // --- İSTATİSTİK NESNELERİNİ BAŞLAT ---
+                if (branchName !== "" && !branches[branchName]) {
+                    branches[branchName] = { totalAll: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
+                }
+                if (installerName !== "" && !installers[installerName]) {
+                    installers[installerName] = { totalAll: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
+                }
+
+                // --- 1. İŞ SAYISI HESABI ---
+                if (branchName !== "") branches[branchName].totalAll++;
+                if (installerName !== "") installers[installerName].totalAll++;
+
+
+                // --- 2. J SÜTUNU (EVET/HAYIR) ANALİZİ (DÜZELTİLDİ) ---
+                let isYes = false;
+                let isNo = false;
+
+                // String'e çevir ve Türkçe karakter duyarlı küçük harfe dönüştür
+                // "HAYIR" -> "hayır", "Hayır" -> "hayır", "HAYIR" (ASCII) -> "hayir" olabilir.
+                const statusStr = String(statusVal).trim().toLocaleLowerCase('tr-TR');
+
+                if (statusStr === "evet" || statusStr === "true" || statusStr === "memnun") {
+                    isYes = true;
+                } 
+                // Kapsamlı Hayır Kontrolü (Noktalı/Noktasız i, Memnun Değil vb.)
+                else if (statusStr === "hayır" || statusStr === "hayir" || statusStr === "false" || statusStr.includes("memnun de")) {
+                    isNo = true;
+                }
+
+                if (isYes || isNo) {
+                    globalStats.totalFeedback++;
+
+                    if (branchName !== "") {
+                        branches[branchName].totalFeedback++;
+                        if (isYes) branches[branchName].satisfied++;
+                        else branches[branchName].unsatisfied++;
+                    }
+
+                    if (installerName !== "") {
+                        installers[installerName].totalFeedback++;
+                        if (isYes) installers[installerName].satisfied++;
+                        else installers[installerName].unsatisfied++;
+                    }
+                    
+                    if (isYes) globalStats.satisfied++;
+                }
+            });
+
+            return { branches, installers, globalStats };
+        }
+
+        // --- 2. Arayüz Güncelleme ---
+        function updateUI(data) {
+            try {
+                const { branches, installers, globalStats } = processData(data);
+
+                // A. Şube Kartlarını Doldur
+                const branchContainer = document.getElementById('branchContainer');
+                if (branchContainer) {
+                    branchContainer.innerHTML = '';
+                    Object.keys(branches).forEach(name => {
+                        const stats = branches[name];
+                        const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
+                        
+                        const displayTotal = stats.totalAll;
+
+                        let color = "text-emerald-600";
+                        let icon = "fa-face-smile";
+                        let barColor = "bg-emerald-600";
+                        
+                        if(rate < 80) { color = "text-amber-600"; icon = "fa-face-meh"; barColor = "bg-amber-600"; }
+                        if(rate < 60) { color = "text-rose-600"; icon = "fa-face-frown"; barColor = "bg-rose-600"; }
+
+                        const html = `
+                            <div class="bg-white rounded-xl p-6 border border-slate-100 card-hover transition-all relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <i class="fa-solid fa-store text-6xl text-slate-800"></i>
+                                </div>
+                                <p class="text-sm text-slate-500 font-medium uppercase tracking-wide mb-1">${name}</p>
+                                <div class="flex items-baseline space-x-2">
+                                    <h2 class="text-3xl font-bold ${color}">%${rate}</h2>
+                                    <span class="text-sm text-slate-400">Memnuniyet</span>
+                                </div>
+                                <div class="mt-4 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                    <div class="${barColor} h-1.5 rounded-full" style="width: ${rate}%"></div>
+                                </div>
+                                <div class="mt-2 text-xs text-slate-400 flex justify-between font-medium">
+                                    <span class="text-slate-600">${displayTotal} İşlem</span>
+                                    <div class="flex space-x-2">
+                                        <span class="text-emerald-600 font-bold" title="Evet">${stats.satisfied}</span>
+                                        <span class="text-rose-400 font-bold" title="Hayır">${stats.unsatisfied}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        branchContainer.innerHTML += html;
+                    });
+                }
+
+                // B. Kurulumcu Tablosunu Doldur
+                const tableBody = document.getElementById('installerTableBody');
+                if (tableBody) {
+                    tableBody.innerHTML = '';
+                    
+                    const sortedInstallers = Object.entries(installers).sort((a, b) => {
+                        const rateA = a[1].totalFeedback > 0 ? (a[1].satisfied / a[1].totalFeedback) : 0;
+                        const rateB = b[1].totalFeedback > 0 ? (b[1].satisfied / b[1].totalFeedback) : 0;
+                        if (rateB !== rateA) return rateB - rateA;
+                        return b[1].totalAll - a[1].totalAll;
+                    });
+
+                    sortedInstallers.forEach(([name, stats]) => {
+                        const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
+                        const displayTotal = stats.totalAll;
+
+                        let badge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">Mükemmel</span>`;
+                        if(rate < 85) badge = `<span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">İyi</span>`;
+                        if(rate < 60) badge = `<span class="bg-rose-100 text-rose-700 px-2 py-1 rounded text-xs font-bold">Düşük</span>`;
+
+                        const row = `
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-medium text-slate-900">${name}</td>
+                                <td class="px-6 py-4 text-center bg-blue-50/50 text-blue-700 font-bold border-l border-r border-slate-100">${displayTotal}</td>
+                                <td class="px-6 py-4 text-center text-emerald-600 font-bold text-lg">${stats.satisfied}</td>
+                                <td class="px-6 py-4 text-center text-rose-600 font-bold text-lg">${stats.unsatisfied}</td>
+                                <td class="px-6 py-4 text-center font-bold text-slate-800">%${rate}</td>
+                                <td class="px-6 py-4 text-center">${badge}</td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML += row;
+                    });
+                }
+
+                // D. Grafikler
+                renderCharts(globalStats);
+                
+                // E. Top Şubeler
+                const topBranchesList = document.getElementById('topBranchesList');
+                if (topBranchesList) {
+                    topBranchesList.innerHTML = '';
+                    Object.entries(branches)
+                        .sort((a,b) => {
+                             const rateA = a[1].totalFeedback > 0 ? (a[1].satisfied/a[1].totalFeedback) : 0;
+                             const rateB = b[1].totalFeedback > 0 ? (b[1].satisfied/b[1].totalFeedback) : 0;
+                             return rateB - rateA;
+                        })
+                        .slice(0, 3)
+                        .forEach(([name, stats], index) => {
+                            const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
+                            topBranchesList.innerHTML += `
+                                <li class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-100">
+                                    <div class="flex items-center">
+                                        <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold mr-3">${index+1}</span>
+                                        <span class="text-sm font-medium text-slate-700">${name}</span>
+                                    </div>
+                                    <span class="text-sm font-bold text-emerald-600">%${rate}</span>
+                                </li>
+                            `;
+                        });
+                }
+
+                // Loading'i kaldır
+                const loader = document.getElementById('loadingOverlay');
+                if(loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 300);
+                }
+            } catch (e) {
+                console.error("UI Hatası:", e);
+                const loader = document.getElementById('loadingOverlay');
+            }
+        }
+
+        function renderCharts(global) {
+            const canvas = document.getElementById('satisfactionChart');
+            if(!canvas) return;
+            
+            if(window.myChart) {
+                window.myChart.destroy();
+            }
+
+            try {
+                window.myChart = new Chart(canvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Memnun (Evet)', 'Memnun Değil (Hayır)'],
+                        datasets: [{
+                            data: [global.satisfied, global.totalFeedback - global.satisfied],
+                            backgroundColor: ['#10b981', '#ef4444'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }
+                        }
+                    }
+                });
+            } catch(e) {
+                console.log("Chart.js yüklenemedi veya hata verdi.", e);
+            }
+        }
+
+        // --- 3. Veri Çekme ve Başlatma ---
+        
+        // MOCK VERİ (TEST İÇİN)
+        function generateMockData() {
+            const data = [];
+            
+            // SERDAL ÖZÇELİK
+            for(let i=0; i<109; i++) {
+                data.push({ 
+                    branch: (i % 2 === 0) ? "DERİNCE" : "KÖRFEZ", 
+                    installer: "SERDAL ÖZÇELİK", 
+                    isSatisfied: (i % 10 !== 0) ? "Evet" : "HAYIR" // TEST İÇİN BÜYÜK HARF
+                });
+            }
+
+            // EMRE SÜRER
+            for(let i=0; i<85; i++) {
+                data.push({ branch: "İZMİT", installer: "EMRE SÜRER", isSatisfied: (i % 5 !== 0) ? "Evet" : "Hayır" });
+            }
+
+            // EMRE YÜCE
+            for(let i=0; i<53; i++) {
+                data.push({ branch: "KÖRFEZ", installer: "EMRE YÜCE", isSatisfied: (i % 4 !== 0) ? "Evet" : "hayir" });
+            }
+
+            // CEYHUN MERT
+            for(let i=0; i<64; i++) {
+                data.push({ branch: "GÖLCÜK", installer: "CEYHUN MERT", isSatisfied: "Evet" });
+            }
+
+            return data;
+        }
+
+        async function fetchData() {
+            console.log("Veri güncelleniyor...", new Date().toLocaleTimeString());
+            
+            // 1. Durum: Google Apps Script içinde çalışıyorsa
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(updateUI)
+                    .withFailureHandler(err => console.error("GAS Hata:", err))
+                    .getData();
+            } 
+            // 2. Durum: Web Ortamı (Dışarıdan Erişim)
+            else {
+                try {
+                    const response = await fetch(WEB_APP_URL);
+                    if(!response.ok) throw new Error("Veri çekilemedi");
+                    const data = await response.json();
+                    updateUI(data);
+                } catch (e) {
+                    console.log("Canlı veri alınamadı, Mock veri gösteriliyor.", e);
+                    updateUI(generateMockData());
+                }
+            }
+        }
+
+        function initApp() {
+            fetchData();
+            setInterval(fetchData, REFRESH_INTERVAL);
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initApp();
+        } else {
+            window.addEventListener('DOMContentLoaded', initApp);
+        }
+
+    </script>
+</body>
+</html>
