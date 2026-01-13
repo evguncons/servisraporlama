@@ -76,7 +76,7 @@
             <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                     <h3 class="font-semibold text-slate-800">Kurulumcu Performans Tablosu</h3>
-                    <span class="text-xs text-slate-500 bg-white border px-2 py-1 rounded">İş Sayısı (Başlık Hariç) / Memnuniyet</span>
+                    <span class="text-xs text-slate-500 bg-white border px-2 py-1 rounded">İş Sayısı / Arananlar (I Sütunu) / Memnuniyet</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left">
@@ -84,6 +84,7 @@
                             <tr>
                                 <th class="px-6 py-3">Kurulumcu</th>
                                 <th class="px-6 py-3 text-center bg-blue-50 text-blue-700">İş Sayısı</th>
+                                <th class="px-6 py-3 text-center bg-amber-50 text-amber-700 border-l border-r border-slate-200">Arananlar</th>
                                 <th class="px-6 py-3 text-center text-emerald-700">Evet (Memnun)</th>
                                 <th class="px-6 py-3 text-center text-rose-700">Hayır (Memnun Değil)</th>
                                 <th class="px-6 py-3 text-center">Başarı %</th>
@@ -139,14 +140,13 @@
                 // Verileri güvenli şekilde string'e çevir
                 const branchName = row.branch ? String(row.branch).trim() : "";
                 const installerName = row.installer ? String(row.installer).trim() : "";
-                
-                // J Sütunu Değeri (Memnuniyet)
-                let statusVal = row.isSatisfied;
+                const callStatusVal = row.callStatus ? String(row.callStatus).trim() : ""; // I Sütunu
+                const statusVal = row.isSatisfied; // J Sütunu
                 
                 // Başlık Satırlarını Filtrele
                 const invalidValues = [
                     "ŞUBE ADI", "KURULUMCU ADI", "DURUM", "MEMNUNİYET", "SIRA", "TARİH", 
-                    "BRANCH", "INSTALLER", "STATUS", "DATE", "ŞUBE", "KURULUMCU"
+                    "BRANCH", "INSTALLER", "STATUS", "DATE", "ŞUBE", "KURULUMCU", "ARAMA DURUMU"
                 ];
                 if (invalidValues.includes(branchName.toUpperCase()) || invalidValues.includes(installerName.toUpperCase())) {
                     return; 
@@ -156,30 +156,33 @@
                 if (branchName === "" && installerName === "") return;
 
                 // --- İSTATİSTİK NESNELERİNİ BAŞLAT ---
+                // called: Arananlar Sayısı (I Sütunu Dolu)
                 if (branchName !== "" && !branches[branchName]) {
-                    branches[branchName] = { totalAll: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
+                    branches[branchName] = { totalAll: 0, called: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
                 }
                 if (installerName !== "" && !installers[installerName]) {
-                    installers[installerName] = { totalAll: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
+                    installers[installerName] = { totalAll: 0, called: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
                 }
 
                 // --- 1. İŞ SAYISI HESABI ---
                 if (branchName !== "") branches[branchName].totalAll++;
                 if (installerName !== "") installers[installerName].totalAll++;
 
+                // --- 2. ARANANLAR (I Sütunu Dolu Olanlar) ---
+                if (callStatusVal !== "") {
+                    if (branchName !== "") branches[branchName].called++;
+                    if (installerName !== "") installers[installerName].called++;
+                }
 
-                // --- 2. J SÜTUNU (EVET/HAYIR) ANALİZİ (DÜZELTİLDİ) ---
+                // --- 3. J SÜTUNU (EVET/HAYIR) ANALİZİ ---
                 let isYes = false;
                 let isNo = false;
 
-                // String'e çevir ve Türkçe karakter duyarlı küçük harfe dönüştür
-                // "HAYIR" -> "hayır", "Hayır" -> "hayır", "HAYIR" (ASCII) -> "hayir" olabilir.
                 const statusStr = String(statusVal).trim().toLocaleLowerCase('tr-TR');
 
                 if (statusStr === "evet" || statusStr === "true" || statusStr === "memnun") {
                     isYes = true;
                 } 
-                // Kapsamlı Hayır Kontrolü (Noktalı/Noktasız i, Memnun Değil vb.)
                 else if (statusStr === "hayır" || statusStr === "hayir" || statusStr === "false" || statusStr.includes("memnun de")) {
                     isNo = true;
                 }
@@ -218,7 +221,6 @@
                     Object.keys(branches).forEach(name => {
                         const stats = branches[name];
                         const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
-                        
                         const displayTotal = stats.totalAll;
 
                         let color = "text-emerald-600";
@@ -243,9 +245,11 @@
                                 </div>
                                 <div class="mt-2 text-xs text-slate-400 flex justify-between font-medium">
                                     <span class="text-slate-600">${displayTotal} İşlem</span>
-                                    <div class="flex space-x-2">
-                                        <span class="text-emerald-600 font-bold" title="Evet">${stats.satisfied}</span>
-                                        <span class="text-rose-400 font-bold" title="Hayır">${stats.unsatisfied}</span>
+                                    <span class="text-amber-600" title="Arananlar">${stats.called} Aranan</span>
+                                    <div class="flex space-x-1">
+                                        <span class="text-emerald-600 font-bold">${stats.satisfied}</span>
+                                        <span class="text-slate-300">/</span>
+                                        <span class="text-rose-400 font-bold">${stats.unsatisfied}</span>
                                     </div>
                                 </div>
                             </div>
@@ -277,7 +281,8 @@
                         const row = `
                             <tr class="hover:bg-slate-50 transition-colors">
                                 <td class="px-6 py-4 font-medium text-slate-900">${name}</td>
-                                <td class="px-6 py-4 text-center bg-blue-50/50 text-blue-700 font-bold border-l border-r border-slate-100">${displayTotal}</td>
+                                <td class="px-6 py-4 text-center bg-blue-50/50 text-blue-700 font-bold border-l border-slate-100">${displayTotal}</td>
+                                <td class="px-6 py-4 text-center bg-amber-50/50 text-amber-700 font-bold border-r border-slate-100">${stats.called}</td>
                                 <td class="px-6 py-4 text-center text-emerald-600 font-bold text-lg">${stats.satisfied}</td>
                                 <td class="px-6 py-4 text-center text-rose-600 font-bold text-lg">${stats.unsatisfied}</td>
                                 <td class="px-6 py-4 text-center font-bold text-slate-800">%${rate}</td>
@@ -288,10 +293,10 @@
                     });
                 }
 
-                // D. Grafikler
+                // C. Grafikler
                 renderCharts(globalStats);
                 
-                // E. Top Şubeler
+                // D. Top Şubeler
                 const topBranchesList = document.getElementById('topBranchesList');
                 if (topBranchesList) {
                     topBranchesList.innerHTML = '';
@@ -368,28 +373,44 @@
         function generateMockData() {
             const data = [];
             
-            // SERDAL ÖZÇELİK
+            // SERDAL ÖZÇELİK - 109 Satır
             for(let i=0; i<109; i++) {
                 data.push({ 
                     branch: (i % 2 === 0) ? "DERİNCE" : "KÖRFEZ", 
                     installer: "SERDAL ÖZÇELİK", 
-                    isSatisfied: (i % 10 !== 0) ? "Evet" : "HAYIR" // TEST İÇİN BÜYÜK HARF
+                    callStatus: (i % 5 !== 0) ? "Ulaşıldı" : "", // I Sütunu Simülasyonu
+                    isSatisfied: (i % 10 !== 0) ? "Evet" : "Hayır" 
                 });
             }
 
-            // EMRE SÜRER
+            // EMRE SÜRER - 85 Satır
             for(let i=0; i<85; i++) {
-                data.push({ branch: "İZMİT", installer: "EMRE SÜRER", isSatisfied: (i % 5 !== 0) ? "Evet" : "Hayır" });
+                data.push({ 
+                    branch: "İZMİT", 
+                    installer: "EMRE SÜRER", 
+                    callStatus: "Arandı", 
+                    isSatisfied: (i % 5 !== 0) ? "Evet" : "Hayır" 
+                });
             }
 
-            // EMRE YÜCE
+            // EMRE YÜCE - 53 Satır
             for(let i=0; i<53; i++) {
-                data.push({ branch: "KÖRFEZ", installer: "EMRE YÜCE", isSatisfied: (i % 4 !== 0) ? "Evet" : "hayir" });
+                data.push({ 
+                    branch: "KÖRFEZ", 
+                    installer: "EMRE YÜCE", 
+                    callStatus: (i % 2 === 0) ? "Ulaşıldı" : "", 
+                    isSatisfied: (i % 4 !== 0) ? "Evet" : "Hayır" 
+                });
             }
 
-            // CEYHUN MERT
+            // CEYHUN MERT - 64 Satır
             for(let i=0; i<64; i++) {
-                data.push({ branch: "GÖLCÜK", installer: "CEYHUN MERT", isSatisfied: "Evet" });
+                data.push({ 
+                    branch: "GÖLCÜK", 
+                    installer: "CEYHUN MERT", 
+                    callStatus: "Arandı",
+                    isSatisfied: "Evet" 
+                });
             }
 
             return data;
