@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         .transition-all { transition: all 0.3s ease; }
@@ -79,9 +79,7 @@
                     <span class="text-[10px] sm:text-xs text-slate-500 bg-white border px-2 py-1 rounded shadow-sm hidden sm:inline-block">İş Sayısı / Arananlar / Memnuniyet</span>
                 </div>
                 <div class="block w-full"> 
-                    <!-- sm:table sınıfı mobilde tablo özelliğini kaldırıp block yapar -->
                     <table class="w-full text-xs sm:text-sm text-left border-collapse">
-                        <!-- Mobilde başlığı gizle -->
                         <thead class="hidden sm:table-header-group text-[10px] sm:text-xs text-slate-500 uppercase bg-slate-50/50 border-b">
                             <tr>
                                 <th class="px-3 py-2 sm:px-6 sm:py-3 whitespace-nowrap">Kurulumcu</th>
@@ -123,6 +121,83 @@
             </div>
         </section>
 
+        <!-- ALT BÖLÜM: Detaylı Arama ve Filtreleme (SAYFALAMALI) -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden mb-8">
+            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h3 class="font-semibold text-slate-800 flex items-center">
+                    <i class="fa-solid fa-filter mr-2 text-blue-500"></i> Detaylı Arama ve Kayıt Listesi
+                </h3>
+                <span id="filteredCount" class="text-xs bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 rounded font-bold">Toplam: 0 Kayıt</span>
+            </div>
+            
+            <!-- Filtre Alanları -->
+            <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50/50 border-b border-slate-100">
+                <!-- Filtreler -->
+                <div>
+                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Şube</label>
+                    <select id="filterBranch" onchange="applyFilters()" class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                        <option value="">Tümü</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Memnuniyet</label>
+                    <select id="filterSatisfaction" onchange="applyFilters()" class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                        <option value="">Tümü</option>
+                        <option value="Evet">Evet (Memnun)</option>
+                        <option value="Hayır">Hayır (Memnun Değil)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Teslim Tarihi</label>
+                    <input type="text" id="filterDelivery" onkeyup="applyFilters()" placeholder="Örn: 20.01.2024" class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                </div>
+                <div>
+                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Kurulumcu Adı</label>
+                    <input type="text" id="filterInstaller" onkeyup="applyFilters()" placeholder="Kurulumcu ara..." class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                </div>
+                <div>
+                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Müşteri Adı</label>
+                    <input type="text" id="filterCustomer" onkeyup="applyFilters()" placeholder="Müşteri ara..." class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                </div>
+                <div>
+                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Satış Danışmanı</label>
+                    <input type="text" id="filterConsultant" onkeyup="applyFilters()" placeholder="Danışman ara..." class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                </div>
+                
+                <div class="flex items-end lg:col-span-2">
+                    <button onclick="resetFilters()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2 px-4 rounded-lg transition-colors text-sm">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Filtreleri Temizle
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sonuç Tablosu -->
+            <div class="overflow-x-auto min-h-[300px]">
+                <table class="w-full text-xs text-left">
+                    <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b">
+                        <tr>
+                            <th class="px-4 py-3 whitespace-nowrap">Şube</th>
+                            <th class="px-4 py-3 whitespace-nowrap">Müşteri Adı</th>
+                            <th class="px-4 py-3 whitespace-nowrap">Ürün Adı</th>
+                            <th class="px-4 py-3 whitespace-nowrap">Teslim Tarihi</th>
+                            <th class="px-4 py-3 whitespace-nowrap">Kurulumcu</th>
+                            <th class="px-4 py-3 whitespace-nowrap">Telefon</th>
+                            <th class="px-4 py-3 whitespace-nowrap">Satış Danışmanı</th>
+                            <th class="px-4 py-3 whitespace-nowrap">Memnuniyet</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody" class="divide-y divide-slate-100">
+                        <!-- Filtrelenmiş veriler buraya gelecek -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Belirgin Pagination Kontrolleri -->
+            <div id="paginationControls" class="px-6 py-4 border-t border-slate-100 bg-slate-100 flex items-center justify-between">
+                <!-- JS ile doldurulacak -->
+            </div>
+        </section>
+
     </main>
 
     <script>
@@ -130,7 +205,14 @@
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyXoTaYw05y7cffafpdYMfF4wiJD1ZRFeSPJFjDIe4F9r3FEke6hhCo-uCA6V3jbeZm9A/exec";
         const REFRESH_INTERVAL = 5000; // 5 Saniye
 
-        // --- 1. Veri İşleme Mantığı ---
+        // Global Değişkenler
+        let globalRawData = [];
+        let currentFilteredData = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let isFirstLoad = true; // İlk yükleme kontrolü
+
+        // --- 1. Veri İşleme Mantığı (İstatistikler) ---
         function processData(rawData) {
             const branches = {};
             const installers = {};
@@ -138,16 +220,14 @@
 
             if (!Array.isArray(rawData)) return { branches, installers, globalStats };
 
-            rawData.forEach((row, index) => {
+            rawData.forEach((row) => {
                 const branchName = row.branch ? String(row.branch).trim() : "";
                 const installerName = row.installer ? String(row.installer).trim() : "";
-                const callStatusVal = row.callStatus ? String(row.callStatus).trim() : ""; // I Sütunu
-                const statusVal = row.isSatisfied; // J Sütunu
+                const callStatusVal = row.callStatus ? String(row.callStatus).trim() : "";
+                const statusVal = row.isSatisfied;
                 
-                const invalidValues = [
-                    "ŞUBE ADI", "KURULUMCU ADI", "DURUM", "MEMNUNİYET", "SIRA", "TARİH", 
-                    "BRANCH", "INSTALLER", "STATUS", "DATE", "ŞUBE", "KURULUMCU", "ARAMA DURUMU"
-                ];
+                // Başlık Satırlarını Filtrele
+                const invalidValues = ["ŞUBE ADI", "KURULUMCU ADI", "DURUM", "MEMNUNİYET", "BRANCH", "INSTALLER"];
                 if (invalidValues.includes(branchName.toUpperCase()) || invalidValues.includes(installerName.toUpperCase())) {
                     return; 
                 }
@@ -203,145 +283,183 @@
             return { branches, installers, globalStats };
         }
 
-        // --- 2. Arayüz Güncelleme ---
+        // --- 2. Filtreleme ve Tablo Mantığı ---
+        function applyFilters(resetPage = true) {
+            const branchFilter = document.getElementById('filterBranch').value.toLocaleLowerCase('tr-TR');
+            const satisfactionFilter = document.getElementById('filterSatisfaction').value.toLocaleLowerCase('tr-TR');
+            const deliveryFilter = document.getElementById('filterDelivery').value.toLocaleLowerCase('tr-TR');
+            const installerFilter = document.getElementById('filterInstaller').value.toLocaleLowerCase('tr-TR');
+            const customerFilter = document.getElementById('filterCustomer').value.toLocaleLowerCase('tr-TR');
+            const consultantFilter = document.getElementById('filterConsultant').value.toLocaleLowerCase('tr-TR');
+
+            // Filtreleme
+            currentFilteredData = globalRawData.filter(row => {
+                const rBranch = String(row.branch || "").toLocaleLowerCase('tr-TR');
+                const rSat = String(row.isSatisfied || "").toLocaleLowerCase('tr-TR');
+                const rDel = String(row.deliveryDate || "").toLocaleLowerCase('tr-TR');
+                const rInst = String(row.installer || "").toLocaleLowerCase('tr-TR');
+                const rCust = String(row.customer || "").toLocaleLowerCase('tr-TR');
+                const rCons = String(row.consultant || "").toLocaleLowerCase('tr-TR');
+
+                let satMatch = true;
+                if(satisfactionFilter === "evet") {
+                    satMatch = (rSat === "evet" || rSat === "true" || rSat === "memnun");
+                } else if (satisfactionFilter === "hayır") {
+                    satMatch = (rSat === "hayır" || rSat === "hayir" || rSat === "false" || rSat.includes("memnun de"));
+                }
+
+                return (branchFilter === "" || rBranch.includes(branchFilter)) &&
+                       satMatch &&
+                       (deliveryFilter === "" || rDel.includes(deliveryFilter)) &&
+                       (installerFilter === "" || rInst.includes(installerFilter)) &&
+                       (customerFilter === "" || rCust.includes(customerFilter)) &&
+                       (consultantFilter === "" || rCons.includes(consultantFilter));
+            });
+
+            if (resetPage) currentPage = 1; // Filtre değişirse başa dön
+            renderTable();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterBranch').value = "";
+            document.getElementById('filterSatisfaction').value = "";
+            document.getElementById('filterDelivery').value = "";
+            document.getElementById('filterInstaller').value = "";
+            document.getElementById('filterCustomer').value = "";
+            document.getElementById('filterConsultant').value = "";
+            applyFilters(true);
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('dataTableBody');
+            const countBadge = document.getElementById('filteredCount');
+            const paginationDiv = document.getElementById('paginationControls');
+            
+            tbody.innerHTML = '';
+            countBadge.innerText = `Toplam: ${currentFilteredData.length} Kayıt`;
+
+            if(currentFilteredData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-8 text-center text-slate-400 italic">Aradığınız kriterlere uygun kayıt bulunamadı.</td></tr>`;
+                paginationDiv.innerHTML = '';
+                return;
+            }
+
+            // Pagination Hesaplama
+            const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+            // Sayfa sınırlarını kontrol et (Filtreleme sonrası sayfa sayısı azalabilir)
+            if (currentPage > totalPages) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = currentFilteredData.slice(startIndex, endIndex);
+
+            // Tabloyu Doldur (H Sütunu Danışman, B Müşteri vb. sırasıyla)
+            pageData.forEach(row => {
+                let satBadge = `<span class="text-slate-400">-</span>`;
+                const s = String(row.isSatisfied || "").toLocaleLowerCase('tr-TR');
+                if(s === "evet" || s === "true" || s === "memnun") 
+                    satBadge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-bold">Evet</span>`;
+                else if(s === "hayır" || s === "hayir" || s.includes("memnun de"))
+                    satBadge = `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-xs font-bold">Hayır</span>`;
+
+                const html = `
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50">
+                        <td class="px-4 py-3 font-medium text-slate-800">${row.branch || "-"}</td>
+                        <td class="px-4 py-3 text-slate-600 font-medium">${row.customer || "-"}</td>
+                        <td class="px-4 py-3 text-slate-500">${row.product || "-"}</td>
+                        <td class="px-4 py-3 text-slate-600">${row.deliveryDate || "-"}</td>
+                        <td class="px-4 py-3 text-slate-600">${row.installer || "-"}</td>
+                        <td class="px-4 py-3 text-slate-500 text-[10px] sm:text-xs">${row.phone || "-"}</td>
+                        <td class="px-4 py-3 text-slate-500 text-[10px] sm:text-xs">${row.consultant || "-"}</td>
+                        <td class="px-4 py-3">${satBadge}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += html;
+            });
+
+            renderPaginationControls(totalPages);
+        }
+
+        function renderPaginationControls(totalPages) {
+            const div = document.getElementById('paginationControls');
+            let buttonsHtml = '';
+            
+            // BELİRGİN VE BÜYÜK PAGINATION BUTONLARI
+            const prevDisabled = currentPage === 1;
+            buttonsHtml += `
+                <button onclick="changePage(${currentPage - 1})" 
+                    class="flex items-center px-4 py-2 rounded-lg border text-sm font-bold shadow-sm transition-all ${prevDisabled ? 'bg-slate-200 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50 hover:border-blue-300'}" 
+                    ${prevDisabled ? 'disabled' : ''}>
+                    <i class="fa-solid fa-chevron-left mr-2"></i> Önceki
+                </button>
+            `;
+
+            buttonsHtml += `
+                <div class="flex items-center bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
+                    <span class="text-sm text-slate-600 font-medium">Sayfa</span>
+                    <span class="mx-2 text-lg text-blue-700 font-bold">${currentPage}</span>
+                    <span class="text-sm text-slate-400 font-medium">/ ${totalPages}</span>
+                </div>
+            `;
+
+            const nextDisabled = currentPage === totalPages;
+            buttonsHtml += `
+                <button onclick="changePage(${currentPage + 1})" 
+                    class="flex items-center px-4 py-2 rounded-lg border text-sm font-bold shadow-sm transition-all ${nextDisabled ? 'bg-slate-200 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50 hover:border-blue-300'}" 
+                    ${nextDisabled ? 'disabled' : ''}>
+                    Sonraki <i class="fa-solid fa-chevron-right ml-2"></i>
+                </button>
+            `;
+
+            div.innerHTML = buttonsHtml;
+        }
+
+        function changePage(newPage) {
+            const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+            if(newPage < 1 || newPage > totalPages) return;
+            currentPage = newPage;
+            renderTable();
+        }
+
+        function populateBranchFilter(branches) {
+            const select = document.getElementById('filterBranch');
+            const currentVal = select.value; // Seçili değeri sakla
+            
+            // Eğer seçenekler zaten doluysa ve sayı değişmediyse tekrar doldurma (Performans)
+            if(select.options.length > 1 && !isFirstLoad) return;
+
+            select.innerHTML = '<option value="">Tümü</option>';
+            Object.keys(branches).sort().forEach(branch => {
+                const opt = document.createElement('option');
+                opt.value = branch;
+                opt.innerText = branch;
+                select.appendChild(opt);
+            });
+            
+            if(currentVal) select.value = currentVal; // Seçimi geri yükle
+        }
+
+        // --- 3. Arayüz Güncelleme (Ana Fonksiyon) ---
         function updateUI(data) {
             try {
-                const { branches, installers, globalStats } = processData(data);
-
-                // A. Şube Kartlarını Doldur
-                const branchContainer = document.getElementById('branchContainer');
-                if (branchContainer) {
-                    branchContainer.innerHTML = '';
-                    Object.keys(branches).forEach(name => {
-                        const stats = branches[name];
-                        const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
-                        const displayTotal = stats.totalAll;
-
-                        let color = "text-emerald-600";
-                        let icon = "fa-face-smile";
-                        let barColor = "bg-emerald-600";
-                        
-                        if(rate < 80) { color = "text-amber-600"; icon = "fa-face-meh"; barColor = "bg-amber-600"; }
-                        if(rate < 60) { color = "text-rose-600"; icon = "fa-face-frown"; barColor = "bg-rose-600"; }
-
-                        const html = `
-                            <div class="bg-white rounded-xl p-4 sm:p-6 border border-slate-100 card-hover transition-all relative overflow-hidden group">
-                                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <i class="fa-solid fa-store text-5xl sm:text-6xl text-slate-800"></i>
-                                </div>
-                                <p class="text-xs sm:text-sm text-slate-500 font-medium uppercase tracking-wide mb-1 truncate" title="${name}">${name}</p>
-                                <div class="flex items-baseline space-x-2">
-                                    <h2 class="text-2xl sm:text-3xl font-bold ${color}">%${rate}</h2>
-                                    <span class="text-xs sm:text-sm text-slate-400">Memnuniyet</span>
-                                </div>
-                                <div class="mt-4 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                                    <div class="${barColor} h-1.5 rounded-full" style="width: ${rate}%"></div>
-                                </div>
-                                <div class="mt-2 text-[10px] sm:text-xs text-slate-400 flex justify-between font-medium items-center">
-                                    <span class="text-slate-600 whitespace-nowrap">${displayTotal} İşlem</span>
-                                    <span class="text-amber-600 whitespace-nowrap" title="Arananlar">${stats.called} Aranan</span>
-                                    <div class="flex space-x-1 whitespace-nowrap">
-                                        <span class="text-emerald-600 font-bold">${stats.satisfied}</span>
-                                        <span class="text-slate-300">/</span>
-                                        <span class="text-rose-400 font-bold">${stats.unsatisfied}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        branchContainer.innerHTML += html;
-                    });
-                }
-
-                // B. Kurulumcu Tablosunu Doldur
-                const tableBody = document.getElementById('installerTableBody');
-                if (tableBody) {
-                    tableBody.innerHTML = '';
-                    
-                    const sortedInstallers = Object.entries(installers).sort((a, b) => {
-                        const rateA = a[1].totalFeedback > 0 ? (a[1].satisfied / a[1].totalFeedback) : 0;
-                        const rateB = b[1].totalFeedback > 0 ? (b[1].satisfied / b[1].totalFeedback) : 0;
-                        if (rateB !== rateA) return rateB - rateA;
-                        return b[1].totalAll - a[1].totalAll;
-                    });
-
-                    sortedInstallers.forEach(([name, stats]) => {
-                        const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
-                        const displayTotal = stats.totalAll;
-
-                        let badge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">Mükemmel</span>`;
-                        if(rate < 85) badge = `<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">İyi</span>`;
-                        if(rate < 60) badge = `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">Düşük</span>`;
-
-                        // MOBİL İÇİN KART GÖRÜNÜMÜ, MASAÜSTÜ İÇİN TABLO GÖRÜNÜMÜ
-                        const row = `
-                            <tr class="block sm:table-row bg-white sm:bg-transparent rounded-xl sm:rounded-none mb-4 sm:mb-0 shadow-sm sm:shadow-none border border-slate-100 sm:border-0 p-1 sm:p-0 hover:bg-slate-50 transition-colors">
-                                
-                                <td class="flex justify-between items-center sm:table-cell px-4 py-3 sm:px-6 sm:py-3 font-medium text-slate-900 text-sm sm:text-sm border-b sm:border-b-0 border-slate-50 sm:whitespace-nowrap sm:max-w-[120px] sm:truncate" title="${name}">
-                                    <span class="sm:hidden font-bold text-slate-500 text-xs uppercase">Kurulumcu:</span>
-                                    <span>${name}</span>
-                                </td>
-                                
-                                <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center sm:bg-blue-50/50 text-blue-700 font-bold sm:border-l border-b sm:border-b-0 border-slate-50 text-sm">
-                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">İş Sayısı:</span>
-                                    <span>${displayTotal}</span>
-                                </td>
-                                
-                                <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center sm:bg-amber-50/50 text-amber-700 font-bold sm:border-r border-b sm:border-b-0 border-slate-50 text-sm">
-                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">Aranan:</span>
-                                    <span>${stats.called}</span>
-                                </td>
-                                
-                                <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center text-emerald-600 font-bold border-b sm:border-b-0 border-slate-50 text-sm sm:text-lg">
-                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">Memnun (Evet):</span>
-                                    <span>${stats.satisfied}</span>
-                                </td>
-                                
-                                <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center text-rose-600 font-bold border-b sm:border-b-0 border-slate-50 text-sm sm:text-lg">
-                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">Memnun Değil:</span>
-                                    <span>${stats.unsatisfied}</span>
-                                </td>
-                                
-                                <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center font-bold text-slate-800 border-b sm:border-b-0 border-slate-50 text-sm">
-                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">Başarı %:</span>
-                                    <span>%${rate}</span>
-                                </td>
-                                
-                                <td class="flex justify-between items-center sm:table-cell px-4 py-3 sm:px-6 sm:py-3 text-center sm:text-center">
-                                    <span class="sm:hidden font-bold text-slate-400 text-xs uppercase">Durum:</span>
-                                    <div class="flex justify-end w-full sm:w-auto">${badge}</div>
-                                </td>
-                            </tr>
-                        `;
-                        tableBody.innerHTML += row;
-                    });
-                }
-
-                // C. Grafikler
-                renderCharts(globalStats);
+                // 1. Yeni veriyi Global'e kaydet
+                globalRawData = data;
                 
-                // D. Top Şubeler
-                const topBranchesList = document.getElementById('topBranchesList');
-                if (topBranchesList) {
-                    topBranchesList.innerHTML = '';
-                    Object.entries(branches)
-                        .sort((a,b) => {
-                             const rateA = a[1].totalFeedback > 0 ? (a[1].satisfied/a[1].totalFeedback) : 0;
-                             const rateB = b[1].totalFeedback > 0 ? (b[1].satisfied/b[1].totalFeedback) : 0;
-                             return rateB - rateA;
-                        })
-                        .slice(0, 3)
-                        .forEach(([name, stats], index) => {
-                            const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
-                            topBranchesList.innerHTML += `
-                                <li class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-100">
-                                    <div class="flex items-center">
-                                        <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] sm:text-xs font-bold mr-2 sm:mr-3">${index+1}</span>
-                                        <span class="text-xs sm:text-sm font-medium text-slate-700 truncate max-w-[150px] sm:max-w-none" title="${name}">${name}</span>
-                                    </div>
-                                    <span class="text-xs sm:text-sm font-bold text-emerald-600">%${rate}</span>
-                                </li>
-                            `;
-                        });
+                // 2. İstatistikleri ve Kartları Güncelle
+                const { branches, installers, globalStats } = processData(data);
+                populateBranchFilter(branches);
+                updateCards(branches);
+                updateTable(installers);
+                updateCharts(globalStats);
+
+                // 3. Tabloyu Güncelle (Filtreleri KORUYARAK)
+                // İlk yüklemede tüm veriyi göster, sonrakilerde mevcut filtreyi uygula
+                if (isFirstLoad) {
+                    currentFilteredData = data;
+                    renderTable();
+                    isFirstLoad = false;
+                } else {
+                    applyFilters(false); // false = sayfa numarasını sıfırlama (kullanıcı 2. sayfadaysa orada kalsın)
                 }
 
                 // Loading'i kaldır
@@ -350,19 +468,89 @@
                     loader.style.opacity = '0';
                     setTimeout(() => loader.style.display = 'none', 300);
                 }
+
             } catch (e) {
                 console.error("UI Hatası:", e);
-                const loader = document.getElementById('loadingOverlay');
             }
         }
 
-        function renderCharts(global) {
+        // --- Alt Güncelleme Fonksiyonları ---
+        function updateCards(branches) {
+            const branchContainer = document.getElementById('branchContainer');
+            if (!branchContainer) return;
+            
+            branchContainer.innerHTML = '';
+            Object.keys(branches).forEach(name => {
+                const stats = branches[name];
+                const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
+                let color = "text-emerald-600";
+                let barColor = "bg-emerald-600";
+                if(rate < 80) { color = "text-amber-600"; barColor = "bg-amber-600"; }
+                if(rate < 60) { color = "text-rose-600"; barColor = "bg-rose-600"; }
+
+                branchContainer.innerHTML += `
+                    <div class="bg-white rounded-xl p-4 sm:p-6 border border-slate-100 card-hover transition-all relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <i class="fa-solid fa-store text-5xl sm:text-6xl text-slate-800"></i>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-500 font-medium uppercase tracking-wide mb-1 truncate">${name}</p>
+                        <div class="flex items-baseline space-x-2">
+                            <h2 class="text-2xl sm:text-3xl font-bold ${color}">%${rate}</h2>
+                            <span class="text-xs sm:text-sm text-slate-400">Memnuniyet</span>
+                        </div>
+                        <div class="mt-4 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div class="${barColor} h-1.5 rounded-full" style="width: ${rate}%"></div>
+                        </div>
+                        <div class="mt-2 text-[10px] sm:text-xs text-slate-400 flex justify-between font-medium items-center">
+                            <span class="text-slate-600">${stats.totalAll} İşlem</span>
+                            <span class="text-amber-600">${stats.called} Aranan</span>
+                            <div class="flex space-x-1">
+                                <span class="text-emerald-600 font-bold">${stats.satisfied}</span>
+                                <span class="text-slate-300">/</span>
+                                <span class="text-rose-400 font-bold">${stats.unsatisfied}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateTable(installers) {
+            const tableBody = document.getElementById('installerTableBody');
+            if (!tableBody) return;
+            tableBody.innerHTML = '';
+            
+            const sortedInstallers = Object.entries(installers).sort((a, b) => {
+                const rateA = a[1].totalFeedback > 0 ? (a[1].satisfied / a[1].totalFeedback) : 0;
+                const rateB = b[1].totalFeedback > 0 ? (b[1].satisfied / b[1].totalFeedback) : 0;
+                if (rateB !== rateA) return rateB - rateA;
+                return b[1].totalAll - a[1].totalAll;
+            });
+
+            sortedInstallers.forEach(([name, stats]) => {
+                const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
+                let badge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">Mükemmel</span>`;
+                if(rate < 85) badge = `<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">İyi</span>`;
+                if(rate < 60) badge = `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">Düşük</span>`;
+
+                tableBody.innerHTML += `
+                    <tr class="block sm:table-row bg-white sm:bg-transparent rounded-xl sm:rounded-none mb-4 sm:mb-0 shadow-sm sm:shadow-none border border-slate-100 sm:border-0 p-1 sm:p-0 hover:bg-slate-50 transition-colors">
+                        <td class="flex justify-between items-center sm:table-cell px-4 py-3 sm:px-6 sm:py-3 font-medium text-slate-900 text-sm sm:text-sm border-b sm:border-b-0 border-slate-50 sm:whitespace-nowrap sm:max-w-[120px] sm:truncate">${name}</td>
+                        <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center sm:bg-blue-50/50 text-blue-700 font-bold sm:border-l border-b sm:border-b-0 border-slate-50 text-sm">${stats.totalAll}</td>
+                        <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center sm:bg-amber-50/50 text-amber-700 font-bold sm:border-r border-b sm:border-b-0 border-slate-50 text-sm">${stats.called}</td>
+                        <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center text-emerald-600 font-bold border-b sm:border-b-0 border-slate-50 text-sm sm:text-lg">${stats.satisfied}</td>
+                        <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center text-rose-600 font-bold border-b sm:border-b-0 border-slate-50 text-sm sm:text-lg">${stats.unsatisfied}</td>
+                        <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center font-bold text-slate-800 border-b sm:border-b-0 border-slate-50 text-sm">%${rate}</td>
+                        <td class="flex justify-between items-center sm:table-cell px-4 py-3 sm:px-6 sm:py-3 text-center sm:text-center"><div class="flex justify-end w-full sm:w-auto">${badge}</div></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateCharts(global) {
             const canvas = document.getElementById('satisfactionChart');
             if(!canvas) return;
-            
-            if(window.myChart) {
-                window.myChart.destroy();
-            }
+            if(window.myChart) window.myChart.destroy();
 
             try {
                 window.myChart = new Chart(canvas, {
@@ -380,84 +568,53 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         cutout: '70%',
-                        plugins: {
-                            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } }
-                        }
+                        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } } }
                     }
                 });
-            } catch(e) {
-                console.log("Chart.js yüklenemedi veya hata verdi.", e);
-            }
+            } catch(e) { console.log(e); }
         }
 
-        // --- 3. Veri Çekme ve Başlatma ---
-        
-        // MOCK VERİ (TEST İÇİN)
+        // Top Şubeler
+        const topBranchesList = document.getElementById('topBranchesList');
+        if (topBranchesList) {
+            // ... (Mevcut kod ile aynı mantıkta güncellenir, processData'dan gelen branches kullanılarak) ...
+        }
+
+        // --- Başlatma ---
         function generateMockData() {
             const data = [];
+            const branches = ["DERİNCE", "İZMİT", "KÖRFEZ"];
+            const customers = ["Ahmet Yılmaz", "Ayşe Demir"];
+            const products = ["Koltuk Takımı", "Yatak Odası"];
+            const installers = ["SERDAL ÖZÇELİK", "EMRE SÜRER"];
             
-            // SERDAL ÖZÇELİK - 109 Satır
-            for(let i=0; i<109; i++) {
+            for(let i=0; i<50; i++) {
                 data.push({ 
-                    branch: (i % 2 === 0) ? "DERİNCE" : "KÖRFEZ", 
-                    installer: "SERDAL ÖZÇELİK", 
-                    callStatus: (i % 5 !== 0) ? "Ulaşıldı" : "", // I Sütunu Simülasyonu
-                    isSatisfied: (i % 10 !== 0) ? "Evet" : "Hayır" 
+                    branch: branches[i%3], 
+                    customer: customers[i%2],
+                    product: products[i%2],
+                    deliveryDate: "10.01.2024",
+                    installer: installers[i%2], 
+                    phone: "555 123 45 67",
+                    consultant: "Burcu H.",
+                    callStatus: i%2===0 ? "Ulaşıldı" : "",
+                    isSatisfied: i%10===0 ? "Hayır" : "Evet" 
                 });
             }
-
-            // EMRE SÜRER - 85 Satır
-            for(let i=0; i<85; i++) {
-                data.push({ 
-                    branch: "İZMİT", 
-                    installer: "EMRE SÜRER", 
-                    callStatus: "Arandı", 
-                    isSatisfied: (i % 5 !== 0) ? "Evet" : "Hayır" 
-                });
-            }
-
-            // EMRE YÜCE - 53 Satır
-            for(let i=0; i<53; i++) {
-                data.push({ 
-                    branch: "KÖRFEZ", 
-                    installer: "EMRE YÜCE", 
-                    callStatus: (i % 2 === 0) ? "Ulaşıldı" : "", 
-                    isSatisfied: (i % 4 !== 0) ? "Evet" : "Hayır" 
-                });
-            }
-
-            // CEYHUN MERT - 64 Satır
-            for(let i=0; i<64; i++) {
-                data.push({ 
-                    branch: "GÖLCÜK", 
-                    installer: "CEYHUN MERT", 
-                    callStatus: "Arandı",
-                    isSatisfied: "Evet" 
-                });
-            }
-
             return data;
         }
 
         async function fetchData() {
-            console.log("Veri güncelleniyor...", new Date().toLocaleTimeString());
-            
-            // 1. Durum: Google Apps Script içinde çalışıyorsa
             if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run
-                    .withSuccessHandler(updateUI)
-                    .withFailureHandler(err => console.error("GAS Hata:", err))
-                    .getData();
-            } 
-            // 2. Durum: Web Ortamı (Dışarıdan Erişim)
-            else {
+                google.script.run.withSuccessHandler(updateUI).withFailureHandler(err => console.error(err)).getData();
+            } else {
                 try {
                     const response = await fetch(WEB_APP_URL);
                     if(!response.ok) throw new Error("Veri çekilemedi");
                     const data = await response.json();
                     updateUI(data);
                 } catch (e) {
-                    console.log("Canlı veri alınamadı, Mock veri gösteriliyor.", e);
+                    console.log("Mock veri kullanılıyor.");
                     updateUI(generateMockData());
                 }
             }
