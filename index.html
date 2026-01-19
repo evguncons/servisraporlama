@@ -276,19 +276,26 @@
 
                 if (branchName === "" && installerName === "") return;
 
+                // "SERBEST" içeren kurulumcuları belirle
+                const isSerbest = installerName.toLocaleUpperCase('tr-TR').includes("SERBEST");
+
+                // Şube İstatistikleri: SERBEST olsun olmasın her zaman ekle (Şube memnuniyetini etkilesin)
                 if (branchName !== "" && !branches[branchName]) {
                     branches[branchName] = { totalAll: 0, called: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
                 }
-                if (installerName !== "" && !installers[installerName]) {
+                
+                // Kurulumcu İstatistikleri: Eğer SERBEST ise LİSTEYE EKLEME
+                if (installerName !== "" && !isSerbest && !installers[installerName]) {
                     installers[installerName] = { totalAll: 0, called: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
                 }
 
+                // Sayaçları Artır
                 if (branchName !== "") branches[branchName].totalAll++;
-                if (installerName !== "") installers[installerName].totalAll++;
+                if (installerName !== "" && !isSerbest) installers[installerName].totalAll++;
 
                 if (callStatusVal !== "") {
                     if (branchName !== "") branches[branchName].called++;
-                    if (installerName !== "") installers[installerName].called++;
+                    if (installerName !== "" && !isSerbest) installers[installerName].called++;
                 }
 
                 let isYes = false;
@@ -312,7 +319,8 @@
                         else branches[branchName].unsatisfied++;
                     }
 
-                    if (installerName !== "") {
+                    // SERBEST ise kurulumcu memnuniyetine ekleme
+                    if (installerName !== "" && !isSerbest) {
                         installers[installerName].totalFeedback++;
                         if (isYes) installers[installerName].satisfied++;
                         else installers[installerName].unsatisfied++;
