@@ -23,6 +23,12 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Modal Animasyonları */
+        .modal-enter { opacity: 0; transform: scale(0.95); }
+        .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 300ms, transform 300ms; }
+        .modal-exit { opacity: 1; transform: scale(1); }
+        .modal-exit-active { opacity: 0; transform: scale(0.95); transition: opacity 200ms, transform 200ms; }
     </style>
 </head>
 <body class="text-slate-800 antialiased">
@@ -31,6 +37,43 @@
     <div id="loadingOverlay" class="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center transition-opacity duration-300">
         <div class="loader mb-4"></div>
         <h2 class="text-slate-600 font-medium animate-pulse">Veriler Analiz Ediliyor...</h2>
+    </div>
+
+    <!-- DETAY MODAL (POPUP) -->
+    <div id="detailModal" class="fixed inset-0 z-[70] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Arkaplan Karartma -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeModal()"></div>
+
+            <!-- Modal İçeriği -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border border-slate-200">
+                
+                <!-- Modal Header -->
+                <div class="bg-slate-50 px-4 py-3 sm:px-6 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="text-lg leading-6 font-bold text-slate-800 flex items-center" id="modal-title">
+                        <i class="fa-solid fa-circle-info text-blue-600 mr-2"></i> Kayıt Detayları
+                    </h3>
+                    <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+                    <div id="modalContent" class="space-y-4">
+                        <!-- JS ile doldurulacak -->
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-100">
+                    <button type="button" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition-colors" onclick="closeModal()">
+                        Kapat
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Navbar -->
@@ -181,9 +224,8 @@
                             <th class="px-4 py-3 whitespace-nowrap">Ürün Adı</th>
                             <th class="px-4 py-3 whitespace-nowrap">Teslim Tarihi</th>
                             <th class="px-4 py-3 whitespace-nowrap">Kurulumcu</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Telefon</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Satış Danışmanı</th>
                             <th class="px-4 py-3 whitespace-nowrap">Memnuniyet</th>
+                            <th class="px-4 py-3 whitespace-nowrap text-center">İşlem</th>
                         </tr>
                     </thead>
                     <tbody id="dataTableBody" class="divide-y divide-slate-100">
@@ -339,22 +381,24 @@
             countBadge.innerText = `Toplam: ${currentFilteredData.length} Kayıt`;
 
             if(currentFilteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-8 text-center text-slate-400 italic">Aradığınız kriterlere uygun kayıt bulunamadı.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-slate-400 italic">Aradığınız kriterlere uygun kayıt bulunamadı.</td></tr>`;
                 paginationDiv.innerHTML = '';
                 return;
             }
 
             // Pagination Hesaplama
             const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
-            // Sayfa sınırlarını kontrol et (Filtreleme sonrası sayfa sayısı azalabilir)
+            // Sayfa sınırlarını kontrol et
             if (currentPage > totalPages) currentPage = 1;
 
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const pageData = currentFilteredData.slice(startIndex, endIndex);
 
-            // Tabloyu Doldur (H Sütunu Danışman, B Müşteri vb. sırasıyla)
-            pageData.forEach(row => {
+            // Tabloyu Doldur
+            pageData.forEach((row, index) => {
+                const globalIndex = startIndex + index; // Orijinal veri içindeki indeks
+                
                 let satBadge = `<span class="text-slate-400">-</span>`;
                 const s = String(row.isSatisfied || "").toLocaleLowerCase('tr-TR');
                 if(s === "evet" || s === "true" || s === "memnun") 
@@ -362,6 +406,7 @@
                 else if(s === "hayır" || s === "hayir" || s.includes("memnun de"))
                     satBadge = `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-xs font-bold">Hayır</span>`;
 
+                // Telefon ve Danışman GİZLENDİ, Detay butonu eklendi
                 const html = `
                     <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50">
                         <td class="px-4 py-3 font-medium text-slate-800">${row.branch || "-"}</td>
@@ -369,9 +414,12 @@
                         <td class="px-4 py-3 text-slate-500">${row.product || "-"}</td>
                         <td class="px-4 py-3 text-slate-600">${row.deliveryDate || "-"}</td>
                         <td class="px-4 py-3 text-slate-600">${row.installer || "-"}</td>
-                        <td class="px-4 py-3 text-slate-500 text-[10px] sm:text-xs">${row.phone || "-"}</td>
-                        <td class="px-4 py-3 text-slate-500 text-[10px] sm:text-xs">${row.consultant || "-"}</td>
                         <td class="px-4 py-3">${satBadge}</td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="openModal(${globalIndex})" class="bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded hover:bg-blue-700 transition-colors shadow-sm">
+                                <i class="fa-solid fa-eye mr-1"></i> Detay
+                            </button>
+                        </td>
                     </tr>
                 `;
                 tbody.innerHTML += html;
@@ -380,11 +428,74 @@
             renderPaginationControls(totalPages);
         }
 
+        // --- MODAL İŞLEMLERİ ---
+        function openModal(index) {
+            const record = currentFilteredData[index];
+            if(!record) return;
+
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+            
+            // I Sütunu (Arananlar/Durum) Verisi
+            const iColumnData = record.callStatus ? record.callStatus : "<span class='text-slate-400 italic'>Bilgi yok</span>";
+
+            content.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Şube</span>
+                        <span class="text-slate-800 font-medium">${record.branch || "-"}</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Teslim Tarihi</span>
+                        <span class="text-slate-800 font-medium">${record.deliveryDate || "-"}</span>
+                    </div>
+                    <div class="col-span-1 sm:col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Müşteri Adı</span>
+                        <span class="text-slate-800 font-bold text-lg">${record.customer || "-"}</span>
+                    </div>
+                    <div class="col-span-1 sm:col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Ürün</span>
+                        <span class="text-slate-700">${record.product || "-"}</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Telefon</span>
+                        <span class="text-slate-800 font-medium select-all">${record.phone || "-"}</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Satış Danışmanı</span>
+                        <span class="text-slate-800 font-medium">${record.consultant || "-"}</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Kurulumcu</span>
+                        <span class="text-slate-800 font-medium">${record.installer || "-"}</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Memnuniyet (J Sütunu)</span>
+                        <span class="text-slate-800 font-bold">${record.isSatisfied || "-"}</span>
+                    </div>
+                    
+                    <!-- I Sütunu (Detaylı Sonuç/Notlar) -->
+                    <div class="col-span-1 sm:col-span-2 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <span class="block text-xs text-blue-600 font-bold uppercase mb-2 flex items-center">
+                            <i class="fa-solid fa-clipboard-list mr-1"></i> Müşteri Memnuniyet Sonucu / Notlar (I Sütunu)
+                        </span>
+                        <div class="text-slate-800 text-sm leading-relaxed whitespace-pre-wrap">${iColumnData}</div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('detailModal');
+            modal.classList.add('hidden');
+        }
+
         function renderPaginationControls(totalPages) {
             const div = document.getElementById('paginationControls');
             let buttonsHtml = '';
             
-            // BELİRGİN VE BÜYÜK PAGINATION BUTONLARI
             const prevDisabled = currentPage === 1;
             buttonsHtml += `
                 <button onclick="changePage(${currentPage - 1})" 
@@ -423,9 +534,8 @@
 
         function populateBranchFilter(branches) {
             const select = document.getElementById('filterBranch');
-            const currentVal = select.value; // Seçili değeri sakla
+            const currentVal = select.value;
             
-            // Eğer seçenekler zaten doluysa ve sayı değişmediyse tekrar doldurma (Performans)
             if(select.options.length > 1 && !isFirstLoad) return;
 
             select.innerHTML = '<option value="">Tümü</option>';
@@ -436,7 +546,7 @@
                 select.appendChild(opt);
             });
             
-            if(currentVal) select.value = currentVal; // Seçimi geri yükle
+            if(currentVal) select.value = currentVal;
         }
 
         // --- 3. Arayüz Güncelleme (Ana Fonksiyon) ---
@@ -452,17 +562,15 @@
                 updateTable(installers);
                 updateCharts(globalStats);
 
-                // 3. Tabloyu Güncelle (Filtreleri KORUYARAK)
-                // İlk yüklemede tüm veriyi göster, sonrakilerde mevcut filtreyi uygula
+                // 3. Tabloyu Güncelle
                 if (isFirstLoad) {
                     currentFilteredData = data;
                     renderTable();
                     isFirstLoad = false;
                 } else {
-                    applyFilters(false); // false = sayfa numarasını sıfırlama (kullanıcı 2. sayfadaysa orada kalsın)
+                    applyFilters(false);
                 }
 
-                // Loading'i kaldır
                 const loader = document.getElementById('loadingOverlay');
                 if(loader) {
                     loader.style.opacity = '0';
@@ -597,7 +705,7 @@
                     installer: installers[i%2], 
                     phone: "555 123 45 67",
                     consultant: "Burcu H.",
-                    callStatus: i%2===0 ? "Ulaşıldı" : "",
+                    callStatus: i%2===0 ? "Müşteri arandı, ulaşıldı." : "",
                     isSatisfied: i%10===0 ? "Hayır" : "Evet" 
                 });
             }
