@@ -9,66 +9,55 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; } /* Arkaplan rengi biraz koyulaştırıldı */
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
         .transition-all { transition: all 0.3s ease; }
         
         /* Loading Animasyonu */
         .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Modal Animasyonları */
-        .modal-enter { opacity: 0; transform: scale(0.95); }
-        .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 300ms, transform 300ms; }
-        .modal-exit { opacity: 1; transform: scale(1); }
-        .modal-exit-active { opacity: 0; transform: scale(0.95); transition: opacity 200ms, transform 200ms; }
+        /* Scrollbar İyileştirmesi */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="text-slate-800 antialiased">
+<body class="text-slate-800 antialiased pb-10">
 
     <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center transition-opacity duration-300">
-        <div class="loader mb-4"></div>
-        <h2 class="text-slate-600 font-medium animate-pulse">Veriler Analiz Ediliyor...</h2>
+    <div id="loadingOverlay" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[60] flex flex-col items-center justify-center transition-opacity duration-300">
+        <div class="loader mb-3"></div>
+        <h2 class="text-slate-600 text-sm font-medium animate-pulse">Veriler Güncelleniyor...</h2>
     </div>
 
     <!-- DETAY MODAL (POPUP) -->
     <div id="detailModal" class="fixed inset-0 z-[70] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Arkaplan Karartma -->
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeModal()"></div>
-
-            <!-- Modal İçeriği -->
+        <div class="flex items-center justify-center min-h-screen px-4 py-6 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-900/50 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeModal()"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border border-slate-200">
-                
-                <!-- Modal Header -->
-                <div class="bg-slate-50 px-4 py-3 sm:px-6 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="text-lg leading-6 font-bold text-slate-800 flex items-center" id="modal-title">
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border border-slate-100">
+                <div class="bg-white px-4 py-4 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10">
+                    <h3 class="text-base font-bold text-slate-800 flex items-center">
                         <i class="fa-solid fa-circle-info text-blue-600 mr-2"></i> Kayıt Detayları
                     </h3>
-                    <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-                        <i class="fa-solid fa-xmark text-xl"></i>
+                    <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
-
-                <!-- Modal Body -->
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
-                    <div id="modalContent" class="space-y-4">
-                        <!-- JS ile doldurulacak -->
-                    </div>
+                <div class="p-4 sm:p-6 overflow-y-auto max-h-[70vh]">
+                    <div id="modalContent" class="space-y-4"></div>
                 </div>
-
-                <!-- Modal Footer -->
-                <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-slate-100">
-                    <button type="button" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition-colors" onclick="closeModal()">
+                <div class="bg-slate-50 px-4 py-3 sm:flex sm:flex-row-reverse border-t border-slate-100">
+                    <button type="button" class="w-full sm:w-auto inline-flex justify-center rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 px-4 py-2.5 transition-colors shadow-sm" onclick="closeModal()">
                         Kapat
                     </button>
                 </div>
@@ -79,20 +68,21 @@
     <!-- Navbar -->
     <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-16 py-3 sm:py-0">
-                <div class="flex items-center self-start sm:self-center mb-2 sm:mb-0">
-                    <div class="bg-blue-600 text-white p-2 rounded-lg mr-3 shadow-md shadow-blue-200">
-                        <i class="fa-solid fa-chart-line text-lg"></i>
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center">
+                    <div class="bg-blue-600 text-white p-1.5 sm:p-2 rounded-lg mr-2 sm:mr-3 shadow-md shadow-blue-200">
+                        <i class="fa-solid fa-chart-line text-sm sm:text-lg"></i>
                     </div>
                     <div>
-                        <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Hedef AVM</h1>
-                        <p class="text-[10px] sm:text-xs text-slate-500">Mağaza & Servis Raporlama</p>
+                        <h1 class="text-sm sm:text-lg font-bold text-slate-900 leading-tight">Hedef AVM</h1>
+                        <p class="text-[10px] sm:text-xs text-slate-500">Raporlama Paneli</p>
                     </div>
                 </div>
-                <div class="flex items-center self-end sm:self-center bg-slate-50 rounded-full px-3 py-1 border border-slate-100">
+                <div class="flex items-center bg-slate-50 rounded-full px-2.5 py-1 border border-slate-100">
                     <div class="text-[10px] sm:text-xs text-slate-500 font-medium flex items-center">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                        Canlı İzleme (5sn)
+                        <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                        <span class="hidden sm:inline">Canlı İzleme (5sn)</span>
+                        <span class="sm:hidden">Canlı</span>
                     </div>
                 </div>
             </div>
@@ -100,142 +90,141 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-5 sm:space-y-8">
         
-        <!-- ÜST BÖLÜM: Şube Bazlı İstatistikler (A Sütunu) -->
+        <!-- ÜST BÖLÜM: Şube Kartları -->
         <section>
-            <h2 class="text-base sm:text-lg font-semibold text-slate-700 mb-4 flex items-center">
+            <h2 class="text-sm sm:text-lg font-semibold text-slate-700 mb-3 flex items-center">
                 <i class="fa-solid fa-store mr-2 text-blue-500"></i> Şube Memnuniyet Oranları
             </h2>
-            <div id="branchContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div id="branchContainer" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 <!-- Şube kartları buraya gelecek -->
             </div>
         </section>
 
-        <!-- ORTA BÖLÜM: Kurulumcu Performansı (E Sütunu) ve Detaylar -->
-        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <!-- ORTA BÖLÜM: Kurulumcu Performansı & Grafikler -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
             
             <!-- Sol Taraf: Kurulumcu Listesi -->
-            <div class="lg:col-span-2 bg-white sm:bg-white rounded-xl shadow-none sm:shadow-sm border-0 sm:border border-slate-100 overflow-hidden flex flex-col bg-transparent">
-                <div class="px-0 sm:px-6 py-4 sm:border-b border-slate-100 bg-transparent sm:bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2 sm:mb-0">
-                    <h3 class="font-semibold text-slate-800 text-sm sm:text-base pl-2 sm:pl-0">Kurulumcu Performans Tablosu</h3>
-                    <span class="text-[10px] sm:text-xs text-slate-500 bg-white border px-2 py-1 rounded shadow-sm hidden sm:inline-block">İş Sayısı / Arananlar / Memnuniyet</span>
-                </div>
-                <div class="block w-full"> 
-                    <table class="w-full text-xs sm:text-sm text-left border-collapse">
-                        <thead class="hidden sm:table-header-group text-[10px] sm:text-xs text-slate-500 uppercase bg-slate-50/50 border-b">
-                            <tr>
-                                <th class="px-3 py-2 sm:px-6 sm:py-3 whitespace-nowrap">Kurulumcu</th>
-                                <th class="px-2 py-2 sm:px-6 sm:py-3 text-center bg-blue-50 text-blue-700 whitespace-nowrap">İş Sayısı</th>
-                                <th class="px-2 py-2 sm:px-6 sm:py-3 text-center bg-amber-50 text-amber-700 border-l border-r border-slate-200 whitespace-nowrap">Aranan</th>
-                                <th class="px-2 py-2 sm:px-6 sm:py-3 text-center text-emerald-700 whitespace-nowrap">Evet</th>
-                                <th class="px-2 py-2 sm:px-6 sm:py-3 text-center text-rose-700 whitespace-nowrap">Hayır</th>
-                                <th class="px-2 py-2 sm:px-6 sm:py-3 text-center whitespace-nowrap">Başarı</th>
-                                <th class="px-3 py-2 sm:px-6 sm:py-3 text-center whitespace-nowrap">Durum</th>
-                            </tr>
-                        </thead>
-                        <tbody id="installerTableBody" class="block sm:table-row-group space-y-4 sm:space-y-0">
-                            <!-- Satırlar buraya gelecek -->
-                        </tbody>
-                    </table>
+            <div class="lg:col-span-2 flex flex-col space-y-4">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                        <h3 class="font-semibold text-slate-800 text-sm">Kurulumcu Performansı</h3>
+                        <span class="text-[10px] text-slate-500 bg-white border px-2 py-0.5 rounded">Başlıklar Hariç</span>
+                    </div>
+                    
+                    <!-- Responsive Table Container -->
+                    <div class="block w-full"> 
+                        <table class="w-full text-xs text-left border-collapse">
+                            <!-- Masaüstü Başlık -->
+                            <thead class="hidden sm:table-header-group text-xs text-slate-500 uppercase bg-slate-50/50 border-b">
+                                <tr>
+                                    <th class="px-4 py-3">Kurulumcu</th>
+                                    <th class="px-2 py-3 text-center">İş</th>
+                                    <th class="px-2 py-3 text-center">Aranan</th>
+                                    <th class="px-2 py-3 text-center text-emerald-600">Evet</th>
+                                    <th class="px-2 py-3 text-center text-rose-600">Hayır</th>
+                                    <th class="px-2 py-3 text-center">Başarı</th>
+                                </tr>
+                            </thead>
+                            <!-- Mobil ve Masaüstü Gövde -->
+                            <tbody id="installerTableBody" class="block sm:table-row-group p-2 sm:p-0 space-y-2 sm:space-y-0">
+                                <!-- Satırlar JS ile dolacak -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- Sağ Taraf: Grafikler -->
-            <div class="space-y-6">
+            <!-- Sağ Taraf: Grafikler ve Top List -->
+            <div class="space-y-4 sm:space-y-6">
                 <!-- Genel Pasta Grafik -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6">
-                    <h3 class="text-xs sm:text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">Genel Dağılım</h3>
-                    <div class="relative h-40 sm:h-48">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                    <h3 class="text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wider text-center">Genel Dağılım</h3>
+                    <div class="relative h-32 sm:h-40">
                          <canvas id="satisfactionChart"></canvas>
                     </div>
-                    <div class="mt-4 text-center">
-                        <p class="text-[10px] sm:text-xs text-slate-400">J Sütunu Bazlı Evet/Hayır Analizi</p>
+                    <div class="mt-2 text-center">
+                        <p class="text-[10px] text-slate-400">Toplam Veri Üzerinden</p>
                     </div>
                 </div>
 
                 <!-- Başarı Sıralaması -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6">
-                    <h3 class="text-xs sm:text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">En İyi Şubeler</h3>
-                    <ul id="topBranchesList" class="space-y-2 sm:space-y-3 mt-4">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                    <h3 class="text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wider">En İyi Şubeler</h3>
+                    <ul id="topBranchesList" class="space-y-2">
                         <!-- Liste JS ile dolacak -->
                     </ul>
                 </div>
             </div>
         </section>
 
-        <!-- ALT BÖLÜM: Detaylı Arama ve Filtreleme (SAYFALAMALI) -->
-        <section class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden mb-8">
-            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                <h3 class="font-semibold text-slate-800 flex items-center">
-                    <i class="fa-solid fa-filter mr-2 text-blue-500"></i> Detaylı Arama ve Kayıt Listesi
+        <!-- ALT BÖLÜM: Detaylı Arama ve Liste -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <h3 class="font-semibold text-slate-800 flex items-center text-sm">
+                    <i class="fa-solid fa-filter mr-2 text-blue-500"></i> Detaylı Arama
                 </h3>
-                <span id="filteredCount" class="text-xs bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 rounded font-bold">Toplam: 0 Kayıt</span>
+                <span id="filteredCount" class="text-[10px] bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded font-bold self-end sm:self-auto">0 Kayıt</span>
             </div>
             
-            <!-- Filtre Alanları -->
-            <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50/50 border-b border-slate-100">
-                <!-- Filtreler -->
-                <div>
-                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Şube</label>
-                    <select id="filterBranch" onchange="applyFilters()" class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
-                        <option value="">Tümü</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Memnuniyet</label>
-                    <select id="filterSatisfaction" onchange="applyFilters()" class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
-                        <option value="">Tümü</option>
-                        <option value="Evet">Evet (Memnun)</option>
-                        <option value="Hayır">Hayır (Memnun Değil)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Teslim Tarihi</label>
-                    <input type="text" id="filterDelivery" onkeyup="applyFilters()" placeholder="Örn: 20.01.2024" class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
-                </div>
-                <div>
-                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Kurulumcu Adı</label>
-                    <input type="text" id="filterInstaller" onkeyup="applyFilters()" placeholder="Kurulumcu ara..." class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
-                </div>
-                <div>
-                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Müşteri Adı</label>
-                    <input type="text" id="filterCustomer" onkeyup="applyFilters()" placeholder="Müşteri ara..." class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
-                </div>
-                <div>
-                    <label class="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1">Satış Danışmanı</label>
-                    <input type="text" id="filterConsultant" onkeyup="applyFilters()" placeholder="Danışman ara..." class="w-full border-slate-200 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 p-2 border">
-                </div>
-                
-                <div class="flex items-end lg:col-span-2">
-                    <button onclick="resetFilters()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2 px-4 rounded-lg transition-colors text-sm">
-                        <i class="fa-solid fa-rotate-left mr-1"></i> Filtreleri Temizle
-                    </button>
+            <!-- Kompakt Filtre Alanı -->
+            <div class="p-3 sm:p-4 bg-slate-50/30 border-b border-slate-100">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                    <div>
+                        <input type="text" id="filterCustomer" onkeyup="applyFilters()" placeholder="Müşteri Adı" class="w-full border-slate-200 rounded text-xs focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                    </div>
+                    <div>
+                        <input type="text" id="filterInstaller" onkeyup="applyFilters()" placeholder="Kurulumcu" class="w-full border-slate-200 rounded text-xs focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                    </div>
+                    <div>
+                        <select id="filterBranch" onchange="applyFilters()" class="w-full border-slate-200 rounded text-xs focus:ring-blue-500 focus:border-blue-500 p-2 border bg-white">
+                            <option value="">Tüm Şubeler</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="filterSatisfaction" onchange="applyFilters()" class="w-full border-slate-200 rounded text-xs focus:ring-blue-500 focus:border-blue-500 p-2 border bg-white">
+                            <option value="">Tüm Durumlar</option>
+                            <option value="Evet">Memnun</option>
+                            <option value="Hayır">Memnun Değil</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="text" id="filterDelivery" onkeyup="applyFilters()" placeholder="Teslim Tarihi" class="w-full border-slate-200 rounded text-xs focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                    </div>
+                    <div>
+                        <input type="text" id="filterConsultant" onkeyup="applyFilters()" placeholder="Danışman" class="w-full border-slate-200 rounded text-xs focus:ring-blue-500 focus:border-blue-500 p-2 border">
+                    </div>
+                    <div class="col-span-2 lg:col-span-2">
+                        <button onclick="resetFilters()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-1.5 px-3 rounded border border-slate-200 transition-colors text-xs flex items-center justify-center h-full">
+                            <i class="fa-solid fa-rotate-left mr-1.5"></i> Temizle
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- Sonuç Tablosu -->
-            <div class="overflow-x-auto min-h-[300px]">
+            <div class="block w-full min-h-[300px]">
                 <table class="w-full text-xs text-left">
-                    <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b">
+                    <thead class="hidden sm:table-header-group text-xs text-slate-500 uppercase bg-slate-50 border-b">
                         <tr>
-                            <th class="px-4 py-3 whitespace-nowrap">Şube</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Müşteri Adı</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Ürün Adı</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Teslim Tarihi</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Kurulumcu</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Memnuniyet</th>
-                            <th class="px-4 py-3 whitespace-nowrap text-center">İşlem</th>
+                            <th class="px-4 py-3">Şube</th>
+                            <th class="px-4 py-3">Müşteri</th>
+                            <th class="px-4 py-3">Ürün</th>
+                            <th class="px-4 py-3">Teslim</th>
+                            <th class="px-4 py-3">Kurulumcu</th>
+                            <th class="px-4 py-3 text-center">Memnuniyet</th>
+                            <th class="px-4 py-3 text-right">İşlem</th>
                         </tr>
                     </thead>
-                    <tbody id="dataTableBody" class="divide-y divide-slate-100">
-                        <!-- Filtrelenmiş veriler buraya gelecek -->
+                    <tbody id="dataTableBody" class="block sm:table-row-group p-2 sm:p-0 space-y-2 sm:space-y-0">
+                        <!-- Veriler JS ile dolacak -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- Belirgin Pagination Kontrolleri -->
-            <div id="paginationControls" class="px-6 py-4 border-t border-slate-100 bg-slate-100 flex items-center justify-between">
+            <!-- Pagination -->
+            <div id="paginationControls" class="px-4 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
                 <!-- JS ile doldurulacak -->
             </div>
         </section>
@@ -245,16 +234,15 @@
     <script>
         // --- Yapılandırma ---
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyXoTaYw05y7cffafpdYMfF4wiJD1ZRFeSPJFjDIe4F9r3FEke6hhCo-uCA6V3jbeZm9A/exec";
-        const REFRESH_INTERVAL = 5000; // 5 Saniye
+        const REFRESH_INTERVAL = 5000;
 
-        // Global Değişkenler
         let globalRawData = [];
         let currentFilteredData = [];
         let currentPage = 1;
         const itemsPerPage = 10;
-        let isFirstLoad = true; // İlk yükleme kontrolü
+        let isFirstLoad = true;
 
-        // --- 1. Veri İşleme Mantığı (İstatistikler) ---
+        // --- Veri İşleme ---
         function processData(rawData) {
             const branches = {};
             const installers = {};
@@ -268,7 +256,6 @@
                 const callStatusVal = row.callStatus ? String(row.callStatus).trim() : "";
                 const statusVal = row.isSatisfied;
                 
-                // Başlık Satırlarını Filtrele
                 const invalidValues = ["ŞUBE ADI", "KURULUMCU ADI", "DURUM", "MEMNUNİYET", "BRANCH", "INSTALLER"];
                 if (invalidValues.includes(branchName.toUpperCase()) || invalidValues.includes(installerName.toUpperCase())) {
                     return; 
@@ -276,20 +263,16 @@
 
                 if (branchName === "" && installerName === "") return;
 
-                // "SERBEST" içeren kurulumcuları belirle
                 const isSerbest = installerName.toLocaleUpperCase('tr-TR').includes("SERBEST");
 
-                // Şube İstatistikleri: SERBEST olsun olmasın her zaman ekle (Şube memnuniyetini etkilesin)
                 if (branchName !== "" && !branches[branchName]) {
                     branches[branchName] = { totalAll: 0, called: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
                 }
                 
-                // Kurulumcu İstatistikleri: Eğer SERBEST ise LİSTEYE EKLEME
                 if (installerName !== "" && !isSerbest && !installers[installerName]) {
                     installers[installerName] = { totalAll: 0, called: 0, totalFeedback: 0, satisfied: 0, unsatisfied: 0 };
                 }
 
-                // Sayaçları Artır
                 if (branchName !== "") branches[branchName].totalAll++;
                 if (installerName !== "" && !isSerbest) installers[installerName].totalAll++;
 
@@ -300,32 +283,24 @@
 
                 let isYes = false;
                 let isNo = false;
-
                 const statusStr = String(statusVal).trim().toLocaleLowerCase('tr-TR');
 
                 if (statusStr === "evet" || statusStr === "true" || statusStr === "memnun") {
                     isYes = true;
-                } 
-                else if (statusStr === "hayır" || statusStr === "hayir" || statusStr === "false" || statusStr.includes("memnun de")) {
+                } else if (statusStr === "hayır" || statusStr === "hayir" || statusStr === "false" || statusStr.includes("memnun de")) {
                     isNo = true;
                 }
 
                 if (isYes || isNo) {
                     globalStats.totalFeedback++;
-
                     if (branchName !== "") {
                         branches[branchName].totalFeedback++;
-                        if (isYes) branches[branchName].satisfied++;
-                        else branches[branchName].unsatisfied++;
+                        if (isYes) branches[branchName].satisfied++; else branches[branchName].unsatisfied++;
                     }
-
-                    // SERBEST ise kurulumcu memnuniyetine ekleme
                     if (installerName !== "" && !isSerbest) {
                         installers[installerName].totalFeedback++;
-                        if (isYes) installers[installerName].satisfied++;
-                        else installers[installerName].unsatisfied++;
+                        if (isYes) installers[installerName].satisfied++; else installers[installerName].unsatisfied++;
                     }
-                    
                     if (isYes) globalStats.satisfied++;
                 }
             });
@@ -333,7 +308,7 @@
             return { branches, installers, globalStats };
         }
 
-        // --- 2. Filtreleme ve Tablo Mantığı ---
+        // --- Filtreleme ---
         function applyFilters(resetPage = true) {
             const branchFilter = document.getElementById('filterBranch').value.toLocaleLowerCase('tr-TR');
             const satisfactionFilter = document.getElementById('filterSatisfaction').value.toLocaleLowerCase('tr-TR');
@@ -342,7 +317,6 @@
             const customerFilter = document.getElementById('filterCustomer').value.toLocaleLowerCase('tr-TR');
             const consultantFilter = document.getElementById('filterConsultant').value.toLocaleLowerCase('tr-TR');
 
-            // Filtreleme
             currentFilteredData = globalRawData.filter(row => {
                 const rBranch = String(row.branch || "").toLocaleLowerCase('tr-TR');
                 const rSat = String(row.isSatisfied || "").toLocaleLowerCase('tr-TR');
@@ -366,7 +340,7 @@
                        (consultantFilter === "" || rCons.includes(consultantFilter));
             });
 
-            if (resetPage) currentPage = 1; // Filtre değişirse başa dön
+            if (resetPage) currentPage = 1;
             renderTable();
         }
 
@@ -380,53 +354,83 @@
             applyFilters(true);
         }
 
+        // --- Render Tablo (Mobil Kart Görünümü) ---
         function renderTable() {
             const tbody = document.getElementById('dataTableBody');
             const countBadge = document.getElementById('filteredCount');
             const paginationDiv = document.getElementById('paginationControls');
             
             tbody.innerHTML = '';
-            countBadge.innerText = `Toplam: ${currentFilteredData.length} Kayıt`;
+            countBadge.innerText = `${currentFilteredData.length} Kayıt`;
 
             if(currentFilteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-slate-400 italic">Aradığınız kriterlere uygun kayıt bulunamadı.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-slate-400 text-xs italic">Kayıt bulunamadı.</td></tr>`;
                 paginationDiv.innerHTML = '';
                 return;
             }
 
-            // Pagination Hesaplama
             const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
-            // Sayfa sınırlarını kontrol et
             if (currentPage > totalPages) currentPage = 1;
 
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const pageData = currentFilteredData.slice(startIndex, endIndex);
 
-            // Tabloyu Doldur
             pageData.forEach((row, index) => {
-                const globalIndex = startIndex + index; // Orijinal veri içindeki indeks
+                const globalIndex = startIndex + index;
                 
-                let satBadge = `<span class="text-slate-400">-</span>`;
+                let satBadge = `<span class="text-slate-300">-</span>`;
                 const s = String(row.isSatisfied || "").toLocaleLowerCase('tr-TR');
                 if(s === "evet" || s === "true" || s === "memnun") 
-                    satBadge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-bold">Evet</span>`;
+                    satBadge = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1"></span><span class="text-emerald-700 font-bold">Evet</span>`;
                 else if(s === "hayır" || s === "hayir" || s.includes("memnun de"))
-                    satBadge = `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-xs font-bold">Hayır</span>`;
+                    satBadge = `<span class="inline-block w-2 h-2 rounded-full bg-rose-500 mr-1"></span><span class="text-rose-700 font-bold">Hayır</span>`;
 
-                // Telefon ve Danışman GİZLENDİ, Detay butonu eklendi
                 const html = `
-                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-50">
-                        <td class="px-4 py-3 font-medium text-slate-800">${row.branch || "-"}</td>
-                        <td class="px-4 py-3 text-slate-600 font-medium">${row.customer || "-"}</td>
-                        <td class="px-4 py-3 text-slate-500">${row.product || "-"}</td>
-                        <td class="px-4 py-3 text-slate-600">${row.deliveryDate || "-"}</td>
-                        <td class="px-4 py-3 text-slate-600">${row.installer || "-"}</td>
-                        <td class="px-4 py-3">${satBadge}</td>
-                        <td class="px-4 py-3 text-center">
-                            <button onclick="openModal(${globalIndex})" class="bg-blue-600 text-white text-xs font-medium px-3 py-1.5 rounded hover:bg-blue-700 transition-colors shadow-sm">
-                                <i class="fa-solid fa-eye mr-1"></i> Detay
-                            </button>
+                    <tr class="block sm:table-row bg-white sm:bg-transparent rounded-lg border border-slate-200 sm:border-0 sm:border-b sm:border-slate-50 shadow-sm sm:shadow-none mb-3 sm:mb-0 hover:bg-slate-50 transition-colors">
+                        <!-- MOBİL GÖRÜNÜM İÇİN KART YAPISI -->
+                        <td class="block sm:table-cell px-3 py-2 sm:px-4 sm:py-3 border-b border-slate-50 sm:border-0">
+                            <div class="flex justify-between sm:block">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Şube</span>
+                                <span class="font-medium text-slate-800">${row.branch || "-"}</span>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-2 sm:px-4 sm:py-3 border-b border-slate-50 sm:border-0">
+                            <div class="flex justify-between sm:block">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Müşteri</span>
+                                <span class="text-slate-700 font-medium">${row.customer || "-"}</span>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-2 sm:px-4 sm:py-3 border-b border-slate-50 sm:border-0">
+                            <div class="flex justify-between sm:block">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Ürün</span>
+                                <span class="text-slate-500 truncate max-w-[200px] block">${row.product || "-"}</span>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-2 sm:px-4 sm:py-3 border-b border-slate-50 sm:border-0">
+                            <div class="flex justify-between sm:block">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Teslim</span>
+                                <span class="text-slate-600">${row.deliveryDate || "-"}</span>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-2 sm:px-4 sm:py-3 border-b border-slate-50 sm:border-0">
+                            <div class="flex justify-between sm:block">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Kurulumcu</span>
+                                <span class="text-slate-600">${row.installer || "-"}</span>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-2 sm:px-4 sm:py-3 border-b border-slate-50 sm:border-0">
+                            <div class="flex justify-between items-center sm:justify-center">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Memnuniyet</span>
+                                <div class="flex items-center text-xs">${satBadge}</div>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-2 sm:px-4 sm:py-3 sm:text-right">
+                            <div class="flex justify-end w-full">
+                                <button onclick="openModal(${globalIndex})" class="w-full sm:w-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 text-xs font-medium px-3 py-1.5 rounded transition-colors flex items-center justify-center">
+                                    <i class="fa-solid fa-eye mr-1.5"></i> Detay
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -436,101 +440,78 @@
             renderPaginationControls(totalPages);
         }
 
-        // --- MODAL İŞLEMLERİ ---
+        // --- Diğer Render Fonksiyonları ---
         function openModal(index) {
             const record = currentFilteredData[index];
             if(!record) return;
-
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('modalContent');
-            
-            // I Sütunu (Arananlar/Durum) Verisi
             const iColumnData = record.callStatus ? record.callStatus : "<span class='text-slate-400 italic'>Bilgi yok</span>";
 
             content.innerHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Şube</span>
-                        <span class="text-slate-800 font-medium">${record.branch || "-"}</span>
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="flex flex-col bg-slate-50 p-3 rounded border border-slate-100">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase mb-1">Müşteri</span>
+                        <span class="text-slate-800 font-bold text-base">${record.customer || "-"}</span>
                     </div>
-                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Teslim Tarihi</span>
-                        <span class="text-slate-800 font-medium">${record.deliveryDate || "-"}</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-50 p-2.5 rounded border border-slate-100">
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Şube</span>
+                            <span class="text-slate-800 text-sm font-medium">${record.branch || "-"}</span>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded border border-slate-100">
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Tarih</span>
+                            <span class="text-slate-800 text-sm font-medium">${record.deliveryDate || "-"}</span>
+                        </div>
                     </div>
-                    <div class="col-span-1 sm:col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Müşteri Adı</span>
-                        <span class="text-slate-800 font-bold text-lg">${record.customer || "-"}</span>
+                    <div class="bg-slate-50 p-2.5 rounded border border-slate-100">
+                        <span class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Ürün</span>
+                        <span class="text-slate-700 text-sm">${record.product || "-"}</span>
                     </div>
-                    <div class="col-span-1 sm:col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Ürün</span>
-                        <span class="text-slate-700">${record.product || "-"}</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-50 p-2.5 rounded border border-slate-100">
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Telefon</span>
+                            <span class="text-slate-800 text-sm font-medium select-all">${record.phone || "-"}</span>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded border border-slate-100">
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Satış Danışmanı</span>
+                            <span class="text-slate-800 text-sm font-medium">${record.consultant || "-"}</span>
+                        </div>
                     </div>
-                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Telefon</span>
-                        <span class="text-slate-800 font-medium select-all">${record.phone || "-"}</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Satış Danışmanı</span>
-                        <span class="text-slate-800 font-medium">${record.consultant || "-"}</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Kurulumcu</span>
-                        <span class="text-slate-800 font-medium">${record.installer || "-"}</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <span class="block text-xs text-slate-500 font-bold uppercase mb-1">Memnuniyet (J Sütunu)</span>
-                        <span class="text-slate-800 font-bold">${record.isSatisfied || "-"}</span>
+                    <div class="bg-slate-50 p-2.5 rounded border border-slate-100">
+                        <span class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Kurulumcu</span>
+                        <span class="text-slate-800 text-sm font-medium">${record.installer || "-"}</span>
                     </div>
                     
-                    <!-- I Sütunu (Detaylı Sonuç/Notlar) -->
-                    <div class="col-span-1 sm:col-span-2 bg-blue-50 p-4 rounded-lg border border-blue-100">
-                        <span class="block text-xs text-blue-600 font-bold uppercase mb-2 flex items-center">
-                            <i class="fa-solid fa-clipboard-list mr-1"></i> Müşteri Memnuniyet Sonucu / Notlar (I Sütunu)
+                    <div class="bg-blue-50 p-3 rounded border border-blue-100 mt-1">
+                        <span class="block text-[10px] text-blue-600 font-bold uppercase mb-1 flex items-center">
+                            <i class="fa-solid fa-message mr-1"></i> Müşteri Notu (I Sütunu)
                         </span>
-                        <div class="text-slate-800 text-sm leading-relaxed whitespace-pre-wrap">${iColumnData}</div>
+                        <div class="text-slate-800 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">${iColumnData}</div>
                     </div>
                 </div>
             `;
-
             modal.classList.remove('hidden');
         }
 
         function closeModal() {
-            const modal = document.getElementById('detailModal');
-            modal.classList.add('hidden');
+            document.getElementById('detailModal').classList.add('hidden');
         }
 
         function renderPaginationControls(totalPages) {
             const div = document.getElementById('paginationControls');
-            let buttonsHtml = '';
-            
             const prevDisabled = currentPage === 1;
-            buttonsHtml += `
-                <button onclick="changePage(${currentPage - 1})" 
-                    class="flex items-center px-4 py-2 rounded-lg border text-sm font-bold shadow-sm transition-all ${prevDisabled ? 'bg-slate-200 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50 hover:border-blue-300'}" 
-                    ${prevDisabled ? 'disabled' : ''}>
-                    <i class="fa-solid fa-chevron-left mr-2"></i> Önceki
-                </button>
-            `;
-
-            buttonsHtml += `
-                <div class="flex items-center bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
-                    <span class="text-sm text-slate-600 font-medium">Sayfa</span>
-                    <span class="mx-2 text-lg text-blue-700 font-bold">${currentPage}</span>
-                    <span class="text-sm text-slate-400 font-medium">/ ${totalPages}</span>
-                </div>
-            `;
-
             const nextDisabled = currentPage === totalPages;
-            buttonsHtml += `
-                <button onclick="changePage(${currentPage + 1})" 
-                    class="flex items-center px-4 py-2 rounded-lg border text-sm font-bold shadow-sm transition-all ${nextDisabled ? 'bg-slate-200 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50 hover:border-blue-300'}" 
-                    ${nextDisabled ? 'disabled' : ''}>
-                    Sonraki <i class="fa-solid fa-chevron-right ml-2"></i>
+
+            div.innerHTML = `
+                <button onclick="changePage(${currentPage - 1})" class="px-3 py-1.5 rounded border text-xs font-medium transition-colors ${prevDisabled ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 hover:bg-slate-50'}" ${prevDisabled ? 'disabled' : ''}>
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span class="text-xs text-slate-500 font-medium">Sayfa ${currentPage} / ${totalPages}</span>
+                <button onclick="changePage(${currentPage + 1})" class="px-3 py-1.5 rounded border text-xs font-medium transition-colors ${nextDisabled ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 hover:bg-slate-50'}" ${nextDisabled ? 'disabled' : ''}>
+                    <i class="fa-solid fa-chevron-right"></i>
                 </button>
             `;
-
-            div.innerHTML = buttonsHtml;
         }
 
         function changePage(newPage) {
@@ -542,35 +523,28 @@
 
         function populateBranchFilter(branches) {
             const select = document.getElementById('filterBranch');
-            const currentVal = select.value;
-            
             if(select.options.length > 1 && !isFirstLoad) return;
-
-            select.innerHTML = '<option value="">Tümü</option>';
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Tüm Şubeler</option>';
             Object.keys(branches).sort().forEach(branch => {
                 const opt = document.createElement('option');
                 opt.value = branch;
                 opt.innerText = branch;
                 select.appendChild(opt);
             });
-            
             if(currentVal) select.value = currentVal;
         }
 
-        // --- 3. Arayüz Güncelleme (Ana Fonksiyon) ---
+        // --- Ana Güncelleme ---
         function updateUI(data) {
             try {
-                // 1. Yeni veriyi Global'e kaydet
                 globalRawData = data;
-                
-                // 2. İstatistikleri ve Kartları Güncelle
                 const { branches, installers, globalStats } = processData(data);
                 populateBranchFilter(branches);
                 updateCards(branches);
                 updateTable(installers);
                 updateCharts(globalStats);
 
-                // 3. Tabloyu Güncelle
                 if (isFirstLoad) {
                     currentFilteredData = data;
                     renderTable();
@@ -584,17 +558,14 @@
                     loader.style.opacity = '0';
                     setTimeout(() => loader.style.display = 'none', 300);
                 }
-
             } catch (e) {
                 console.error("UI Hatası:", e);
             }
         }
 
-        // --- Alt Güncelleme Fonksiyonları ---
         function updateCards(branches) {
             const branchContainer = document.getElementById('branchContainer');
             if (!branchContainer) return;
-            
             branchContainer.innerHTML = '';
             Object.keys(branches).forEach(name => {
                 const stats = branches[name];
@@ -605,25 +576,24 @@
                 if(rate < 60) { color = "text-rose-600"; barColor = "bg-rose-600"; }
 
                 branchContainer.innerHTML += `
-                    <div class="bg-white rounded-xl p-4 sm:p-6 border border-slate-100 card-hover transition-all relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <i class="fa-solid fa-store text-5xl sm:text-6xl text-slate-800"></i>
+                    <div class="bg-white rounded-lg p-3 sm:p-4 border border-slate-200 card-hover transition-all relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-2 opacity-10">
+                            <i class="fa-solid fa-store text-4xl sm:text-5xl text-slate-800"></i>
                         </div>
-                        <p class="text-xs sm:text-sm text-slate-500 font-medium uppercase tracking-wide mb-1 truncate">${name}</p>
+                        <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wide mb-1 truncate">${name}</p>
                         <div class="flex items-baseline space-x-2">
-                            <h2 class="text-2xl sm:text-3xl font-bold ${color}">%${rate}</h2>
-                            <span class="text-xs sm:text-sm text-slate-400">Memnuniyet</span>
+                            <h2 class="text-xl sm:text-2xl font-bold ${color}">%${rate}</h2>
+                            <span class="text-[10px] text-slate-400">Memnuniyet</span>
                         </div>
-                        <div class="mt-4 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                            <div class="${barColor} h-1.5 rounded-full" style="width: ${rate}%"></div>
+                        <div class="mt-2 w-full bg-slate-100 rounded-full h-1">
+                            <div class="${barColor} h-1 rounded-full" style="width: ${rate}%"></div>
                         </div>
-                        <div class="mt-2 text-[10px] sm:text-xs text-slate-400 flex justify-between font-medium items-center">
-                            <span class="text-slate-600">${stats.totalAll} İşlem</span>
-                            <span class="text-amber-600">${stats.called} Aranan</span>
+                        <div class="mt-2 flex justify-between text-[10px] font-medium text-slate-500">
+                            <span>${stats.totalAll} İşlem</span>
                             <div class="flex space-x-1">
-                                <span class="text-emerald-600 font-bold">${stats.satisfied}</span>
+                                <span class="text-emerald-600">${stats.satisfied}</span>
                                 <span class="text-slate-300">/</span>
-                                <span class="text-rose-400 font-bold">${stats.unsatisfied}</span>
+                                <span class="text-rose-500">${stats.unsatisfied}</span>
                             </div>
                         </div>
                     </div>
@@ -645,19 +615,49 @@
 
             sortedInstallers.forEach(([name, stats]) => {
                 const rate = stats.totalFeedback > 0 ? Math.round((stats.satisfied / stats.totalFeedback) * 100) : 0;
-                let badge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">Mükemmel</span>`;
-                if(rate < 85) badge = `<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">İyi</span>`;
-                if(rate < 60) badge = `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">Düşük</span>`;
+                let badgeClass = "bg-emerald-100 text-emerald-700";
+                let badgeText = "Mükemmel";
+                if(rate < 85) { badgeClass = "bg-amber-100 text-amber-700"; badgeText = "İyi"; }
+                if(rate < 60) { badgeClass = "bg-rose-100 text-rose-700"; badgeText = "Düşük"; }
 
                 tableBody.innerHTML += `
-                    <tr class="block sm:table-row bg-white sm:bg-transparent rounded-xl sm:rounded-none mb-4 sm:mb-0 shadow-sm sm:shadow-none border border-slate-100 sm:border-0 p-1 sm:p-0 hover:bg-slate-50 transition-colors">
-                        <td class="flex justify-between items-center sm:table-cell px-4 py-3 sm:px-6 sm:py-3 font-medium text-slate-900 text-sm sm:text-sm border-b sm:border-b-0 border-slate-50 sm:whitespace-nowrap sm:max-w-[120px] sm:truncate">${name}</td>
-                        <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center sm:bg-blue-50/50 text-blue-700 font-bold sm:border-l border-b sm:border-b-0 border-slate-50 text-sm">${stats.totalAll}</td>
-                        <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center sm:bg-amber-50/50 text-amber-700 font-bold sm:border-r border-b sm:border-b-0 border-slate-50 text-sm">${stats.called}</td>
-                        <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center text-emerald-600 font-bold border-b sm:border-b-0 border-slate-50 text-sm sm:text-lg">${stats.satisfied}</td>
-                        <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center text-rose-600 font-bold border-b sm:border-b-0 border-slate-50 text-sm sm:text-lg">${stats.unsatisfied}</td>
-                        <td class="flex justify-between items-center sm:table-cell px-4 py-2 sm:px-6 sm:py-3 text-center font-bold text-slate-800 border-b sm:border-b-0 border-slate-50 text-sm">%${rate}</td>
-                        <td class="flex justify-between items-center sm:table-cell px-4 py-3 sm:px-6 sm:py-3 text-center sm:text-center"><div class="flex justify-end w-full sm:w-auto">${badge}</div></td>
+                    <tr class="block sm:table-row bg-white sm:bg-transparent rounded-lg border border-slate-200 sm:border-0 sm:border-b sm:border-slate-50 shadow-sm sm:shadow-none mb-3 sm:mb-0">
+                        <td class="block sm:table-cell px-3 py-2 sm:px-4 sm:py-3 border-b border-slate-50 sm:border-0">
+                            <div class="flex justify-between sm:block">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Kurulumcu</span>
+                                <span class="font-medium text-slate-800 text-xs sm:text-sm truncate block max-w-[150px] sm:max-w-none" title="${name}">${name}</span>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-1.5 sm:px-2 sm:py-3 sm:text-center text-xs sm:bg-blue-50/30 sm:text-blue-700 sm:font-bold">
+                            <div class="flex justify-between sm:block">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">İş Sayısı</span>
+                                <span>${stats.totalAll}</span>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-1.5 sm:px-2 sm:py-3 sm:text-center text-xs sm:bg-amber-50/30 sm:text-amber-700 sm:font-bold">
+                            <div class="flex justify-between sm:block">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Aranan</span>
+                                <span>${stats.called}</span>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-1.5 sm:px-2 sm:py-3 sm:text-center text-xs sm:text-emerald-600 sm:font-bold">
+                            <div class="flex justify-between sm:block">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Memnun</span>
+                                <span>${stats.satisfied}</span>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-1.5 sm:px-2 sm:py-3 sm:text-center text-xs sm:text-rose-600 sm:font-bold">
+                            <div class="flex justify-between sm:block">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Değil</span>
+                                <span>${stats.unsatisfied}</span>
+                            </div>
+                        </td>
+                        <td class="block sm:table-cell px-3 py-2 sm:px-2 sm:py-3 sm:text-center text-xs">
+                            <div class="flex justify-between items-center sm:justify-center">
+                                <span class="sm:hidden text-[10px] text-slate-400 font-bold uppercase">Başarı</span>
+                                <span class="${badgeClass} px-2 py-0.5 rounded text-[10px] font-bold">%${rate} - ${badgeText}</span>
+                            </div>
+                        </td>
                     </tr>
                 `;
             });
@@ -667,15 +667,14 @@
             const canvas = document.getElementById('satisfactionChart');
             if(!canvas) return;
             if(window.myChart) window.myChart.destroy();
-
             try {
                 window.myChart = new Chart(canvas, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Memnun (Evet)', 'Memnun Değil (Hayır)'],
+                        labels: ['Memnun', 'Değil'],
                         datasets: [{
                             data: [global.satisfied, global.totalFeedback - global.satisfied],
-                            backgroundColor: ['#10b981', '#ef4444'],
+                            backgroundColor: ['#10b981', '#f43f5e'],
                             borderWidth: 0,
                             hoverOffset: 4
                         }]
@@ -683,38 +682,29 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        cutout: '70%',
-                        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } } }
+                        cutout: '75%',
+                        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: { size: 9 } } } }
                     }
                 });
             } catch(e) { console.log(e); }
-        }
-
-        // Top Şubeler
-        const topBranchesList = document.getElementById('topBranchesList');
-        if (topBranchesList) {
-            // ... (Mevcut kod ile aynı mantıkta güncellenir, processData'dan gelen branches kullanılarak) ...
         }
 
         // --- Başlatma ---
         function generateMockData() {
             const data = [];
             const branches = ["DERİNCE", "İZMİT", "KÖRFEZ"];
-            const customers = ["Ahmet Yılmaz", "Ayşe Demir"];
-            const products = ["Koltuk Takımı", "Yatak Odası"];
             const installers = ["SERDAL ÖZÇELİK", "EMRE SÜRER"];
-            
-            for(let i=0; i<50; i++) {
+            for(let i=0; i<30; i++) {
                 data.push({ 
                     branch: branches[i%3], 
-                    customer: customers[i%2],
-                    product: products[i%2],
+                    customer: "Müşteri " + (i+1),
+                    product: "Ürün " + (i+1),
                     deliveryDate: "10.01.2024",
                     installer: installers[i%2], 
-                    phone: "555 123 45 67",
-                    consultant: "Burcu H.",
-                    callStatus: i%2===0 ? "Müşteri arandı, ulaşıldı." : "",
-                    isSatisfied: i%10===0 ? "Hayır" : "Evet" 
+                    phone: "555...",
+                    consultant: "Satışçı",
+                    callStatus: "Ulaşıldı",
+                    isSatisfied: i%5===0 ? "Hayır" : "Evet" 
                 });
             }
             return data;
@@ -726,11 +716,11 @@
             } else {
                 try {
                     const response = await fetch(WEB_APP_URL);
-                    if(!response.ok) throw new Error("Veri çekilemedi");
+                    if(!response.ok) throw new Error("Veri hatası");
                     const data = await response.json();
                     updateUI(data);
                 } catch (e) {
-                    console.log("Mock veri kullanılıyor.");
+                    console.log("Mock veri.");
                     updateUI(generateMockData());
                 }
             }
@@ -746,7 +736,6 @@
         } else {
             window.addEventListener('DOMContentLoaded', initApp);
         }
-
     </script>
 </body>
 </html>
